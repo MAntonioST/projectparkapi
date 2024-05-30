@@ -1,0 +1,46 @@
+server:
+  port: 8090
+spring:
+  application:
+    name: projectparkapi
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/projectpark_db?useSSL=false&serverTimezone=America/Sao_Paulo
+    username: marcot
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      minimum-idle: 5
+      idle-timeout: 600000
+      maximum-pool-size: 10
+      auto-commit: true
+      pool-name: MyHikariCP
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      connection-test-query: SELECT 1
+
+    jpa:
+      hibernate:
+        ddl-auto: update
+      show-sql: true
+      properties:
+        hibernate:
+          dialect: org.hibernate.dialect.MySQL5Dialect
+          format_sql: true
+          use_sql_comments: true
+
+  messages:
+    basename: messages
+    encoding: UTF-8
+    cache-duration: 3600
+
+  mvc:
+    locale: pt_BR
+    locale-resolver: fixed
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG
+
+
