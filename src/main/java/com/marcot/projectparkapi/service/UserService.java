@@ -32,13 +32,16 @@ public class UserService {
         }
 
         @Transactional
-        public User updatePassword(Long id, String password) {
-            if (password == null || password.length() < 6) {
-                throw new IllegalArgumentException("The password must be at least 6 characters long!");
+        public User updatePassword(Long id, String currentPassword, String newPassword, String confirmPassword) {
+            if(!newPassword.equals(confirmPassword)){
+                throw new RuntimeException("New password does not match the confirm password!");
             }
             Optional<User> optionalUser = userRepository.findById(id);
             User user = optionalUser.orElseThrow(() -> new RuntimeException("User not found!"));
-            user.setPassword(password);
+            if(!user.getPassword().equals(currentPassword)){
+                throw new RuntimeException("Your password does not match.");
+            }
+            user.setPassword(newPassword);
             return userRepository.save(user);
         }
 

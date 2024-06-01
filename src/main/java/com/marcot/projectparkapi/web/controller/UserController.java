@@ -3,6 +3,7 @@ package com.marcot.projectparkapi.web.controller;
 import com.marcot.projectparkapi.entity.User;
 import com.marcot.projectparkapi.service.UserService;
 import com.marcot.projectparkapi.web.dto.UserCreateDto;
+import com.marcot.projectparkapi.web.dto.UserPasswordDto;
 import com.marcot.projectparkapi.web.dto.UserResponseDto;
 import com.marcot.projectparkapi.web.dto.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
@@ -23,19 +24,19 @@ public class UserController {
     @PostMapping
     public ResponseEntity<UserResponseDto> create(@RequestBody UserCreateDto createDto) {
         User user = userService.salvar(createDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(UserMapper.toUserDto(user));
+        return ResponseEntity.status(HttpStatus.CREATED).body(UserMapper.toDto(user));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getById(@PathVariable Long id) {
+    public ResponseEntity<UserResponseDto> getById(@PathVariable Long id) {
         User user = userService.buscarPorId(id);
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(UserMapper.toDto(user));
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User entity) {
-        User user = userService.updatePassword(id, entity.getPassword());
-        return ResponseEntity.ok(user);
+    public ResponseEntity<Void> updateUser(@PathVariable Long id, @RequestBody UserPasswordDto dto) {
+        User user = userService.updatePassword(id, dto.getCurrentPassword(), dto.getNewPassword(), dto.getConfirmPassword());
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping

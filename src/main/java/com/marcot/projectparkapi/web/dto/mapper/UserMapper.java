@@ -3,32 +3,33 @@ package com.marcot.projectparkapi.web.dto.mapper;
 import com.marcot.projectparkapi.entity.User;
 import com.marcot.projectparkapi.web.dto.UserCreateDto;
 import com.marcot.projectparkapi.web.dto.UserResponseDto;
-import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
-import org.modelmapper.spi.MappingContext;
+
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class UserMapper {
 
-    public static User toUser(UserCreateDto createDto){
-        return new ModelMapper().map(createDto, User.class);
-    }
+        public static User toUser(UserCreateDto createDto) {
+            return new ModelMapper().map(createDto, User.class);
+        }
 
-    public static UserResponseDto toUserDto(User user) {
-        ModelMapper modelMapper = new ModelMapper();
-        Converter<String, String> roleConverter = new Converter<>() {
-            @Override
-            public String convert(MappingContext<String, String> context) {
-                return context.getSource().replace("ROLE_", "");
-            }
-        };
-        PropertyMap<User, UserResponseDto> userMap = new PropertyMap<>() {
-            @Override
-            protected void configure() {
-                using(roleConverter).map(source.getRole(), destination.role());
-            }
-        };
-        modelMapper.addMappings(userMap);
-        return modelMapper.map(user, UserResponseDto.class);
+        public static UserResponseDto toDto(User User) {
+            String role = User.getRole().name().substring("ROLE_".length());
+            PropertyMap<User, UserResponseDto> props = new PropertyMap<User, UserResponseDto>() {
+                @Override
+                protected void configure() {
+                    map().setRole(role);
+                }
+            };
+            ModelMapper mapper = new ModelMapper();
+            mapper.addMappings(props);
+            return mapper.map(User, UserResponseDto.class);
+        }
+
+        public static List<UserResponseDto> toListDto(List<User> Users) {
+            return Users.stream().map(user -> toDto(user)).collect(Collectors.toList());
+        }
     }
-}

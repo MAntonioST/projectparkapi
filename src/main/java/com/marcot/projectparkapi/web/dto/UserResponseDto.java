@@ -1,9 +1,14 @@
 package com.marcot.projectparkapi.web.dto;
+import lombok.*;
 
-public record UserResponseDto(
-        String username,
-        String password,
-        String role
-) {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
+public class UserResponseDto {
 
+    private Long id;
+    private String username;
+    private String role;
 }
