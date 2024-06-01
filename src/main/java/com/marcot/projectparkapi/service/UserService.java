@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -27,14 +28,19 @@ public class UserService {
             );
         }
 
-    @Transactional
-    public User updatePassword(Long id, String password) {
-        if (password == null || password.length() < 6) {
-            throw new IllegalArgumentException("The password must be at least 6 characters long!");
+        @Transactional
+        public User updatePassword(Long id, String password) {
+            if (password == null || password.length() < 6) {
+                throw new IllegalArgumentException("The password must be at least 6 characters long!");
+            }
+            Optional<User> optionalUser = userRepository.findById(id);
+            User user = optionalUser.orElseThrow(() -> new RuntimeException("User not found!"));
+            user.setPassword(password);
+            return userRepository.save(user);
         }
-        Optional<User> optionalUser = userRepository.findById(id);
-        User user = optionalUser.orElseThrow(() -> new RuntimeException("User not found!"));
-        user.setPassword(password);
-        return userRepository.save(user);
-    }
+
+        @Transactional(readOnly = true)
+        public List<User> findAllUsers() {
+            return userRepository.findAll();
+        }
 }
