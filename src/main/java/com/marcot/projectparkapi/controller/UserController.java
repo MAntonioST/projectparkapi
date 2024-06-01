@@ -16,14 +16,20 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<User> create(@RequestBody User User) {
-        User user = userService.salvar(User);
+    public ResponseEntity<User> create(@RequestBody User entity) {
+        User user = userService.salvar(entity);
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<User> getById(@PathVariable Long id) {
         User user = userService.buscarPorId(id);
+        return ResponseEntity.ok(user);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User entity) {
+        User user = userService.updatePassword(id, entity.getPassword());
         return ResponseEntity.ok(user);
     }
 
