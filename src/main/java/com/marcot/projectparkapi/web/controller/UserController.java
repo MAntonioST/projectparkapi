@@ -1,7 +1,10 @@
-package com.marcot.projectparkapi.controller;
+package com.marcot.projectparkapi.web.controller;
 
 import com.marcot.projectparkapi.entity.User;
 import com.marcot.projectparkapi.service.UserService;
+import com.marcot.projectparkapi.web.dto.UserCreateDto;
+import com.marcot.projectparkapi.web.dto.UserResponseDto;
+import com.marcot.projectparkapi.web.dto.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +21,9 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<User> create(@RequestBody User entity) {
-        User user = userService.salvar(entity);
-        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+    public ResponseEntity<UserResponseDto> create(@RequestBody UserCreateDto createDto) {
+        User user = userService.salvar(createDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(UserMapper.toUserDto(user));
     }
 
     @GetMapping("/{id}")

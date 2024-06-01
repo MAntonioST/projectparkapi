@@ -3,6 +3,8 @@ package com.marcot.projectparkapi.service;
 
 import com.marcot.projectparkapi.entity.User;
 import com.marcot.projectparkapi.repository.UserRepository;
+import com.marcot.projectparkapi.web.dto.UserCreateDto;
+import com.marcot.projectparkapi.web.dto.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,8 +20,9 @@ public class UserService {
         private final UserRepository userRepository;
 
         @Transactional
-        public User salvar(User entity) {
-            return userRepository.save(entity);
+        public User salvar(UserCreateDto createDto) {
+            User user = UserMapper.toUser(createDto);
+            return userRepository.save(user);
         }
 
         @Transactional(readOnly = true)
