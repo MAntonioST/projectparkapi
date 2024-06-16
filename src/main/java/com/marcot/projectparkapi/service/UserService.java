@@ -2,9 +2,9 @@ package com.marcot.projectparkapi.service;
 
 
 import com.marcot.projectparkapi.entity.User;
+import com.marcot.projectparkapi.exception.EntityNotFoundException;
+import com.marcot.projectparkapi.exception.UsernameUniqueViolationException;
 import com.marcot.projectparkapi.repository.UserRepository;
-import com.marcot.projectparkapi.web.dto.UserCreateDto;
-import com.marcot.projectparkapi.web.dto.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,15 +20,16 @@ public class UserService {
         private final UserRepository userRepository;
 
         @Transactional
-        public User salvar(UserCreateDto createDto) {
-            User user = UserMapper.toUser(createDto);
+        public User salvar(User user) {
+            if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+                throw new UsernameUniqueViolationException(String.format("Username {%s} is already registered", user.getUsername()));
+            }
             return userRepository.save(user);
         }
 
         @Transactional(readOnly = true)
         public User buscarPorId(Long id) {
-            return userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found!")
-            );
+            return userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("User id=%s not found!", id)));
         }
 
         @Transactional

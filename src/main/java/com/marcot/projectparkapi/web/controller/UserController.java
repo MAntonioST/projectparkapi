@@ -6,6 +6,7 @@ import com.marcot.projectparkapi.web.dto.UserCreateDto;
 import com.marcot.projectparkapi.web.dto.UserPasswordDto;
 import com.marcot.projectparkapi.web.dto.UserResponseDto;
 import com.marcot.projectparkapi.web.dto.mapper.UserMapper;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +23,8 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<UserResponseDto> create(@RequestBody UserCreateDto createDto) {
-        User user = userService.salvar(createDto);
+    public ResponseEntity<UserResponseDto> create(@Valid @RequestBody UserCreateDto createDto) {
+        User user = userService.salvar(UserMapper.toUser(createDto));
         return ResponseEntity.status(HttpStatus.CREATED).body(UserMapper.toDto(user));
     }
 
@@ -34,7 +35,7 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Void> updateUser(@PathVariable Long id, @RequestBody UserPasswordDto dto) {
+    public ResponseEntity<Void> updateUser(@PathVariable Long id, @Valid @RequestBody UserPasswordDto dto) {
         User user = userService.updatePassword(id, dto.getCurrentPassword(), dto.getNewPassword(), dto.getConfirmPassword());
         return ResponseEntity.noContent().build();
     }
