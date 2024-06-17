@@ -21,11 +21,13 @@ public class UserService {
         private final UserRepository userRepository;
 
         @Transactional
+
         public User salvar(User user) {
-            if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+            try {
+                return userRepository.save(user);
+            } catch (org.springframework.dao.DataIntegrityViolationException ex) {
                 throw new UsernameUniqueViolationException(String.format("Username {%s} is already registered", user.getUsername()));
             }
-            return userRepository.save(user);
         }
 
         @Transactional(readOnly = true)

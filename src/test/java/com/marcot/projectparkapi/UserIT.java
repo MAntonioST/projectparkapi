@@ -20,7 +20,7 @@ public class UserIT {
     WebTestClient webTestClient;
 
     @Test
-    public void createUser_withValidUsernameAndPassword_returnsCreatedUser() {
+    public void createUser_withValidUsernameAndPassword_returnsCreatedUser201() {
         // Arrange
         UserCreateDto createDto = new UserCreateDto();
         createDto.setUsername("new.user@techcorp.com"); // Use a unique username for the test
@@ -41,5 +41,79 @@ public class UserIT {
         org.assertj.core.api.Assertions.assertThat(responseBody.getId()).isNotNull();
         org.assertj.core.api.Assertions.assertThat(responseBody.getUsername()).isEqualTo("new.user@techcorp.com");
         org.assertj.core.api.Assertions.assertThat(responseBody.getRole()).isEqualTo("CLIENTE");
+    }
+
+    @Test
+    public void createUser_withInvalidUsername_returnsBadRequest422() {
+        // Arrange
+        UserCreateDto createDto = new UserCreateDto();
+        createDto.setUsername("invalid-email"); // Invalid email format
+        createDto.setPassword("123456");
+
+        // Act & Assert
+        webTestClient.post()
+                .uri("/api/v1/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(fromValue(createDto))
+                .exchange()
+                .expectStatus().isEqualTo(422)
+                .expectBody()
+                .jsonPath("$.message").isEqualTo("Invalid data provided")
+                .jsonPath("$.errors.username").isEqualTo("The email format is invalid.");
+    }
+
+
+    @Test
+    public void createUser_withShortPassword_returnsBadRequest422() {
+        // Arrange
+        UserCreateDto createDto = new UserCreateDto();
+        createDto.setUsername("valid.user@techcorp.com");
+        createDto.setPassword("123"); // Password too short
+
+        // Act & Assert
+        webTestClient.post()
+                .uri("/api/v1/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(fromValue(createDto))
+                .exchange()
+                .expectStatus().isEqualTo(422)
+                .expectBody()
+                .jsonPath("$.message").isEqualTo("Invalid data provided")
+                .jsonPath("$.errors.password").isEqualTo("The password must be exactly 6 characters long");
+    }
+
+    @Test
+    public void getUserById_withNonExistingId_returnsNotFound404() {
+        // Arrange
+        Long nonExistingId = 999L;
+
+        // Act & Assert
+        webTestClient.get()
+                .uri("/api/v1/users/{id}", nonExistingId)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isNotFound()
+                .expectBody()
+                .jsonPath("$.message").isEqualTo(String.format("User id=%s not found!", nonExistingId) );
+    }
+
+    @Test
+    public void createUser_withExistingUsername_returnsConflict409() {
+        // Arrange
+        UserCreateDto createDto = new UserCreateDto();
+        createDto.setUsername("admin@techcorp.com"); // Username that already exists
+        createDto.setPassword("123456");
+
+        // Act
+        WebTestClient.ResponseSpec responseSpec = webTestClient.post()
+                .uri("/api/v1/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(fromValue(createDto))
+                .exchange();
+
+        // Assert
+        responseSpec.expectStatus().isEqualTo(409)
+                .expectBody()
+                .jsonPath("$.message").isEqualTo(String.format("Username {%s} is already registered", createDto.getUsername()));
     }
 }
