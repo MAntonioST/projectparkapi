@@ -3,6 +3,7 @@ package com.marcot.projectparkapi.service;
 
 import com.marcot.projectparkapi.entity.User;
 import com.marcot.projectparkapi.exception.EntityNotFoundException;
+import com.marcot.projectparkapi.exception.PasswordInvalidException;
 import com.marcot.projectparkapi.exception.UsernameUniqueViolationException;
 import com.marcot.projectparkapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,15 +36,14 @@ public class UserService {
         @Transactional
         public User updatePassword(Long id, String currentPassword, String newPassword, String confirmPassword) {
             if(!newPassword.equals(confirmPassword)){
-                throw new RuntimeException("New password does not match the confirm password!");
+                throw new PasswordInvalidException("New password does not match the confirm password!");
             }
-            Optional<User> optionalUser = userRepository.findById(id);
-            User user = optionalUser.orElseThrow(() -> new RuntimeException("User not found!"));
+            User user = buscarPorId(id);
             if(!user.getPassword().equals(currentPassword)){
-                throw new RuntimeException("Your password does not match.");
+                throw new PasswordInvalidException("Your password does not match.");
             }
             user.setPassword(newPassword);
-            return userRepository.save(user);
+            return user;
         }
 
         @Transactional(readOnly = true)

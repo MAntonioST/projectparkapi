@@ -44,3 +44,10 @@ logging:
     org.springframework.web: DEBUG
 
 
+springdoc:
+  swagger-ui:
+    path: /docs-park.html
+    operationsSorter: method
+  api-docs:
+    path: /docs-park
+  packages-to-scan: com.marcot.projectparkapi.web.controller
