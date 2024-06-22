@@ -1,6 +1,7 @@
 package com.marcot.projectparkapi;
 
 import com.marcot.projectparkapi.web.dto.UserCreateDto;
+import com.marcot.projectparkapi.web.dto.UserPasswordDto;
 import com.marcot.projectparkapi.web.dto.UserResponseDto;
 import com.marcot.projectparkapi.web.exception.ErrorMessage;
 import org.junit.jupiter.api.Test;
@@ -180,6 +181,100 @@ public class UserIT {
                 });
 
     }
+
+    @Test
+    public void updatePassword_WhenDataIsValid_ReturnStatusNoContent() {
+
+        webTestClient.patch()
+                .uri("/api/v1/users/100")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new UserPasswordDto("admin1", "123456","123456"))
+                .exchange()
+                .expectStatus().isNoContent() // Use HttpStatus para melhor legibilidade
+                .expectBody(ErrorMessage.class);
+
+
+    }
+
+    @Test
+    public void shouldReturn404_WhenUpdatingPassword_WithInvalidId() {
+
+        webTestClient.patch()
+                .uri("/api/v1/users/99")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new UserPasswordDto("admin1", "123456","123456"))
+                .exchange()
+                .expectStatus().isNotFound() // Use HttpStatus para melhor legibilidade
+                .expectBody(ErrorMessage.class)
+                .consumeWith(result -> {
+                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody()).isNotNull();
+                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getStatus()).isEqualTo(404);
+
+                });
+
+    }
+
+    @Test
+    public void updatePassword_WithInvalidFields_ReturnsUNPROCESSABLE_ENTITY() {
+
+        webTestClient.patch()
+                .uri("/api/v1/users/100")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new UserPasswordDto("", "",""))
+                .exchange()
+                .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY)
+                .expectBody(ErrorMessage.class)
+                .consumeWith(result -> {
+                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody()).isNotNull();
+                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getStatus()).isEqualTo(422);
+
+                });
+
+        webTestClient.patch()
+                .uri("/api/v1/users/100")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new UserPasswordDto("1234567", "1234567","1234567"))
+                .exchange()
+                .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY)
+                .expectBody(ErrorMessage.class)
+                .consumeWith(result -> {
+                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody()).isNotNull();
+                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getStatus()).isEqualTo(422);
+
+                });
+    }
+
+    @Test
+    public void updatePassword_WhenInvalidInput_Returns400() {
+
+        webTestClient.patch()
+                .uri("/api/v1/users/100")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new UserPasswordDto("123456", "123456","000000"))
+                .exchange()
+                .expectStatus().isEqualTo(HttpStatus.BAD_REQUEST)
+                .expectBody(ErrorMessage.class)
+                .consumeWith(result -> {
+                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody()).isNotNull();
+                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getStatus()).isEqualTo(400);
+
+                });
+
+        webTestClient.patch()
+                .uri("/api/v1/users/100")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new UserPasswordDto("000000", "123456","123456"))
+                .exchange()
+                .expectStatus().isEqualTo(HttpStatus.BAD_REQUEST)
+                .expectBody(ErrorMessage.class)
+                .consumeWith(result -> {
+                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody()).isNotNull();
+                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getStatus()).isEqualTo(400);
+
+                });
+        
+    }
+
 
 
 }
