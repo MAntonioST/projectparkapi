@@ -272,10 +272,19 @@ public class UserIT {
                     org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getStatus()).isEqualTo(400);
 
                 });
-        
+
     }
 
+    @Test
+    public void getAllUsers_ReturnStatus200AndListOfUsers() {
 
+        webTestClient.get()
+                .uri("/api/v1/users")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk() // Use HttpStatus para melhor legibilidade
+                .expectHeader().contentType(MediaType.APPLICATION_JSON);
+    }
 
 }
 
