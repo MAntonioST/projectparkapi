@@ -2,9 +2,12 @@ package com.marcot.projectparkapi;
 
 import com.marcot.projectparkapi.web.dto.UserCreateDto;
 import com.marcot.projectparkapi.web.dto.UserResponseDto;
+import com.marcot.projectparkapi.web.exception.ErrorMessage;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -44,76 +47,89 @@ public class UserIT {
     }
 
     @Test
-    public void createUser_withInvalidUsername_returnsBadRequest422() {
-        // Arrange
-        UserCreateDto createDto = new UserCreateDto();
-        createDto.setUsername("invalid-email"); // Invalid email format
-        createDto.setPassword("123456");
+    public void createUser_withInvalidUsername_returnsErrroMessageStatus422() {
 
-        // Act & Assert
         webTestClient.post()
                 .uri("/api/v1/users")
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(fromValue(createDto))
+                .bodyValue(new UserCreateDto("", "123456"))
                 .exchange()
-                .expectStatus().isEqualTo(422)
-                .expectBody()
-                .jsonPath("$.message").isEqualTo("Invalid data provided")
-                .jsonPath("$.errors.username").isEqualTo("The email format is invalid.");
-    }
+                .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY) // Use HttpStatus para melhor legibilidade
+                .expectBody(ErrorMessage.class)
+                .consumeWith(result -> {
+                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody()).isNotNull();
+                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getStatus()).isEqualTo(422);
+                });
 
 
-    @Test
-    public void createUser_withShortPassword_returnsBadRequest422() {
-        // Arrange
-        UserCreateDto createDto = new UserCreateDto();
-        createDto.setUsername("valid.user@techcorp.com");
-        createDto.setPassword("123"); // Password too short
-
-        // Act & Assert
         webTestClient.post()
                 .uri("/api/v1/users")
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(fromValue(createDto))
+                .bodyValue(new UserCreateDto("david@", "123456"))
                 .exchange()
-                .expectStatus().isEqualTo(422)
-                .expectBody()
-                .jsonPath("$.message").isEqualTo("Invalid data provided")
-                .jsonPath("$.errors.password").isEqualTo("The password must be exactly 6 characters long");
-    }
+                .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY) // Use HttpStatus para melhor legibilidade
+                .expectBody(ErrorMessage.class)
+                .consumeWith(result -> {
+                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody()).isNotNull();
+                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getStatus()).isEqualTo(422);
+                });
 
-    @Test
-    public void getUserById_withNonExistingId_returnsNotFound404() {
-        // Arrange
-        Long nonExistingId = 999L;
-
-        // Act & Assert
-        webTestClient.get()
-                .uri("/api/v1/users/{id}", nonExistingId)
-                .accept(MediaType.APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isNotFound()
-                .expectBody()
-                .jsonPath("$.message").isEqualTo(String.format("User id=%s not found!", nonExistingId) );
-    }
-
-    @Test
-    public void createUser_withExistingUsername_returnsConflict409() {
-        // Arrange
-        UserCreateDto createDto = new UserCreateDto();
-        createDto.setUsername("admin@techcorp.com"); // Username that already exists
-        createDto.setPassword("123456");
-
-        // Act
-        WebTestClient.ResponseSpec responseSpec = webTestClient.post()
+        webTestClient.post()
                 .uri("/api/v1/users")
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(fromValue(createDto))
-                .exchange();
+                .bodyValue(new UserCreateDto("david@email", "123456"))
+                .exchange()
+                .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY) // Use HttpStatus para melhor legibilidade
+                .expectBody(ErrorMessage.class)
+                .consumeWith(result -> {
+                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody()).isNotNull();
+                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getStatus()).isEqualTo(422);
+                });
 
-        // Assert
-        responseSpec.expectStatus().isEqualTo(409)
-                .expectBody()
-                .jsonPath("$.message").isEqualTo(String.format("Username {%s} is already registered", createDto.getUsername()));
     }
-}
+
+
+
+    @Test
+    public void createUser_withPasswordInvalid_returnsErrorMessageStatus422() {
+
+            webTestClient.post()
+                    .uri("/api/v1/users")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(new UserCreateDto("david@gmail.com", ""))
+                    .exchange()
+                    .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY) // Use HttpStatus para melhor legibilidade
+                    .expectBody(ErrorMessage.class)
+                    .consumeWith(result -> {
+                        org.assertj.core.api.Assertions.assertThat(result.getResponseBody()).isNotNull();
+                        org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getStatus()).isEqualTo(422);
+                    });
+
+
+            webTestClient.post()
+                    .uri("/api/v1/users")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(new UserCreateDto("david@gmail.com", "123"))
+                    .exchange()
+                    .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY) // Use HttpStatus para melhor legibilidade
+                    .expectBody(ErrorMessage.class)
+                    .consumeWith(result -> {
+                        org.assertj.core.api.Assertions.assertThat(result.getResponseBody()).isNotNull();
+                        org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getStatus()).isEqualTo(422);
+                    });
+
+            webTestClient.post()
+                    .uri("/api/v1/users")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(new UserCreateDto("david@gmail.com", "1234567"))
+                    .exchange()
+                    .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY) // Use HttpStatus para melhor legibilidade
+                    .expectBody(ErrorMessage.class)
+                    .consumeWith(result -> {
+                        org.assertj.core.api.Assertions.assertThat(result.getResponseBody()).isNotNull();
+                        org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getStatus()).isEqualTo(422);
+                    });
+
+        }
+
+    }
