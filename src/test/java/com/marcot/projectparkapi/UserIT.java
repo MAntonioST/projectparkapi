@@ -3,7 +3,6 @@ package com.marcot.projectparkapi;
 import com.marcot.projectparkapi.web.dto.UserCreateDto;
 import com.marcot.projectparkapi.web.dto.UserResponseDto;
 import com.marcot.projectparkapi.web.exception.ErrorMessage;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -132,4 +131,23 @@ public class UserIT {
 
         }
 
+    @Test
+    public void createUser_withDuplicateUsername_returns409Conflict() {
+
+        // Act
+        ErrorMessage responseBody = webTestClient.post()
+                .uri("/api/v1/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new UserCreateDto("admin@techcorp.com", "admin1"))
+                .exchange()
+                .expectStatus().isEqualTo(409)
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
+
+        // Assert
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getStatus()).isEqualTo(409);
     }
+
+}
+
