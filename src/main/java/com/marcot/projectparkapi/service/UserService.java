@@ -1,28 +1,26 @@
 package com.marcot.projectparkapi.service;
 
 
-import com.marcot.projectparkapi.entity.User;
+import com.marcot.projectparkapi.entity.UserEntity;
 import com.marcot.projectparkapi.exception.EntityNotFoundException;
 import com.marcot.projectparkapi.exception.PasswordInvalidException;
 import com.marcot.projectparkapi.exception.UsernameUniqueViolationException;
-import com.marcot.projectparkapi.repository.UserRepository;
+import com.marcot.projectparkapi.repository.UserEntityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 
 @RequiredArgsConstructor
 @Service
 public class UserService {
 
-        private final UserRepository userRepository;
+        private final UserEntityRepository userRepository;
 
         @Transactional
-
-        public User salvar(User user) {
+        public UserEntity salvar(UserEntity user) {
             try {
                 return userRepository.save(user);
             } catch (org.springframework.dao.DataIntegrityViolationException ex) {
@@ -31,16 +29,16 @@ public class UserService {
         }
 
         @Transactional(readOnly = true)
-        public User buscarPorId(Long id) {
+        public UserEntity buscarPorId(Long id) {
             return userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("User id=%s not found!", id)));
         }
 
         @Transactional
-        public User updatePassword(Long id, String currentPassword, String newPassword, String confirmPassword) {
+        public UserEntity updatePassword(Long id, String currentPassword, String newPassword, String confirmPassword) {
             if(!newPassword.equals(confirmPassword)){
                 throw new PasswordInvalidException("New password does not match the confirm password!");
             }
-            User user = buscarPorId(id);
+            UserEntity user = buscarPorId(id);
             if(!user.getPassword().equals(currentPassword)){
                 throw new PasswordInvalidException("Your password does not match.");
             }
@@ -49,7 +47,19 @@ public class UserService {
         }
 
         @Transactional(readOnly = true)
-        public List<User> findAllUsers() {
+        public List<UserEntity> findAllUsers() {
             return userRepository.findAll();
+        }
+
+        @Transactional(readOnly = true)
+        public UserEntity findByUsername(String username) {
+            return  userRepository.findByUsername(username).orElseThrow(
+                    () -> new EntityNotFoundException(String.format("User with {username} not found!", username))
+            );
+        }
+
+        @Transactional(readOnly = true)
+        public UserEntity.Role findRoleByUsername(String username) {
+                return userRepository.findRoleByUsername(username);
         }
 }

@@ -15,7 +15,7 @@ import java.util.Objects;
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
 @Entity
 @Table(name = "users")
-public class User implements Serializable {
+public class UserEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,12 +44,16 @@ public class User implements Serializable {
     @Column(name = "modified_by")
     private String modifiedBy;
 
+    public enum Role {
+        ROLE_ADMIN, ROLE_CLIENTE
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        User usuario = (User) o;
-        return Objects.equals(id, usuario.id);
+        UserEntity userEntity = (UserEntity) o;
+        return Objects.equals(id, userEntity.id);
     }
 
     @Override
