@@ -7,6 +7,7 @@ import com.marcot.projectparkapi.exception.PasswordInvalidException;
 import com.marcot.projectparkapi.exception.UsernameUniqueViolationException;
 import com.marcot.projectparkapi.repository.UserEntityRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,10 +19,12 @@ import java.util.List;
 public class UserService {
 
         private final UserEntityRepository userRepository;
+        private final PasswordEncoder passwordEncoder;
 
         @Transactional
         public UserEntity salvar(UserEntity user) {
             try {
+                user.setPassword(passwordEncoder.encode(user.getPassword()));
                 return userRepository.save(user);
             } catch (org.springframework.dao.DataIntegrityViolationException ex) {
                 throw new UsernameUniqueViolationException(String.format("Username {%s} is already registered", user.getUsername()));
@@ -39,10 +42,10 @@ public class UserService {
                 throw new PasswordInvalidException("New password does not match the confirm password!");
             }
             UserEntity user = buscarPorId(id);
-            if(!user.getPassword().equals(currentPassword)){
+            if(!passwordEncoder.matches(currentPassword, user.getPassword())){
                 throw new PasswordInvalidException("Your password does not match.");
             }
-            user.setPassword(newPassword);
+            user.setPassword(passwordEncoder.encode(newPassword));
             return user;
         }
 
