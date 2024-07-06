@@ -4,7 +4,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,7 +31,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             return;
         }
         if(!JwtUtils.isTokenValid(token)){
-            log.info("JWT Token is invalid, or expired.");
+            log.warn("JWT Token is invalid, or expired.");
             filterChain.doFilter(request, response);
             return;
         }

@@ -22,12 +22,12 @@ public class UserService {
         private final PasswordEncoder passwordEncoder;
 
         @Transactional
-        public UserEntity salvar(UserEntity user) {
+        public UserEntity salvar(UserEntity userEntity) {
             try {
-                user.setPassword(passwordEncoder.encode(user.getPassword()));
-                return userRepository.save(user);
+                userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
+                return userRepository.save(userEntity);
             } catch (org.springframework.dao.DataIntegrityViolationException ex) {
-                throw new UsernameUniqueViolationException(String.format("Username {%s} is already registered", user.getUsername()));
+                throw new UsernameUniqueViolationException(String.format("Username {%s} is already registered", userEntity.getUsername()));
             }
         }
 

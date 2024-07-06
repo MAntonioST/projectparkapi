@@ -1,4 +1,4 @@
-package com.example.security.controller;
+package com.marcot.projectparkapi.web.controller;
 
 import com.marcot.projectparkapi.jwt.JwtToken;
 import com.marcot.projectparkapi.jwt.JwtUserDetailsService;
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("api/v1")
 public class AuthenticatorController {
 
    private final JwtUserDetailsService detailsService;
