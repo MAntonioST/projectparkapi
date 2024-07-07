@@ -18,6 +18,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -44,7 +45,7 @@ public class UserController {
     })
     @PostMapping
     public ResponseEntity<UserResponseDto> create(@Valid @RequestBody UserCreateDto createDto) {
-        UserEntity user = userService.salvar(UserMapper.toUser(createDto));
+        UserEntity user = userService.save(UserMapper.toUser(createDto));
         return ResponseEntity.status(HttpStatus.CREATED).body(UserMapper.toDto(user));
     }
 
@@ -57,7 +58,7 @@ public class UserController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDto> getById(@PathVariable Long id) {
-        UserEntity user = userService.buscarPorId(id);
+        UserEntity user = userService.getById(id);
         return ResponseEntity.ok(UserMapper.toDto(user));
     }
 

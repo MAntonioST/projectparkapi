@@ -7,6 +7,7 @@ import com.marcot.projectparkapi.exception.PasswordInvalidException;
 import com.marcot.projectparkapi.exception.UsernameUniqueViolationException;
 import com.marcot.projectparkapi.repository.UserEntityRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +23,7 @@ public class UserService {
         private final PasswordEncoder passwordEncoder;
 
         @Transactional
-        public UserEntity salvar(UserEntity userEntity) {
+        public UserEntity save(UserEntity userEntity) {
             try {
                 userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
                 return userRepository.save(userEntity);
@@ -32,7 +33,7 @@ public class UserService {
         }
 
         @Transactional(readOnly = true)
-        public UserEntity buscarPorId(Long id) {
+        public UserEntity getById(Long id) {
             return userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("User id=%s not found!", id)));
         }
 
@@ -41,7 +42,7 @@ public class UserService {
             if(!newPassword.equals(confirmPassword)){
                 throw new PasswordInvalidException("New password does not match the confirm password!");
             }
-            UserEntity user = buscarPorId(id);
+            UserEntity user = getById(id);
             if(!passwordEncoder.matches(currentPassword, user.getPassword())){
                 throw new PasswordInvalidException("Your password does not match.");
             }
