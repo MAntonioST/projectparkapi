@@ -2,6 +2,7 @@ package com.marcot.projectparkapi.config;
 
 
 import com.marcot.projectparkapi.entity.UserEntity;
+import com.marcot.projectparkapi.jwt.JwtAuthenticationEntryPoint;
 import com.marcot.projectparkapi.jwt.JwtAuthorizationFilter;
 import com.marcot.projectparkapi.repository.UserEntityRepository;
 import lombok.RequiredArgsConstructor;
@@ -55,6 +56,7 @@ public class SpringSecurityConfig {
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(new JwtAuthenticationEntryPoint()))
                 .build();
     }
 
