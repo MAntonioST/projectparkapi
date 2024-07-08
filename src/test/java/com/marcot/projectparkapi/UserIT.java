@@ -154,6 +154,7 @@ public class UserIT {
 
         webTestClient.get()
                 .uri("/api/v1/users/100")
+                .headers(JwtAuthentication.getHeaderAuthorization(webTestClient,"admin@techcorp.com","123456"))
                 .exchange()
                 .expectStatus().isOk() // Use HttpStatus para melhor legibilidade
                 .expectBody(UserResponseDto.class)
@@ -162,6 +163,32 @@ public class UserIT {
                     org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getId()).isEqualTo(100);
                     org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getUsername()).isEqualTo("admin@techcorp.com");
                     org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getRole()).isEqualTo("ADMIN");
+                });
+
+        webTestClient.get()
+                .uri("/api/v1/users/101")
+                .headers(JwtAuthentication.getHeaderAuthorization(webTestClient,"admin@techcorp.com","123456"))
+                .exchange()
+                .expectStatus().isOk() // Use HttpStatus para melhor legibilidade
+                .expectBody(UserResponseDto.class)
+                .consumeWith(result -> {
+                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody()).isNotNull();
+                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getId()).isEqualTo(101);
+                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getUsername()).isEqualTo("john.doe@innovatech.com");
+                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getRole()).isEqualTo("CLIENTE");
+                });
+
+        webTestClient.get()
+                .uri("/api/v1/users/101")
+                .headers(JwtAuthentication.getHeaderAuthorization(webTestClient,"john.doe@innovatech.com","123456"))
+                .exchange()
+                .expectStatus().isOk() // Use HttpStatus para melhor legibilidade
+                .expectBody(UserResponseDto.class)
+                .consumeWith(result -> {
+                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody()).isNotNull();
+                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getId()).isEqualTo(101);
+                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getUsername()).isEqualTo("john.doe@innovatech.com");
+                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getRole()).isEqualTo("CLIENTE");
                 });
 
     }
