@@ -71,8 +71,6 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Password successfully updated",  content = @Content),
             @ApiResponse(responseCode = "400", description = "Invalid data provided", content = @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = Void.class))),
-            @ApiResponse(responseCode = "404", description = "User not found", content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ErrorMessage.class))),
             @ApiResponse(responseCode = "422", description = "Unprocessable Entity - Validation errors",content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ErrorMessage.class))),

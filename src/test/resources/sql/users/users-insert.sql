@@ -1,5 +1,5 @@
 -- Insert 1: Admin user
-INSERT INTO users (id, username, password, role) VALUES (100, 'admin@techcorp.com', '$2a$12$xOJDEDfUTdVQg.wLosammebZi9HWGk34Niolo.pnjL0QXrYqwTD46', 'ROLE_ADMIN');
+INSERT INTO users (id, username, password, role) VALUES (100, 'alan@techcorp.com', '$2a$12$xOJDEDfUTdVQg.wLosammebZi9HWGk34Niolo.pnjL0QXrYqwTD46', 'ROLE_ADMIN');
 
 -- Insert 2: Regular user
 INSERT INTO users (id, username, password, role) VALUES (101, 'john.doe@innovatech.com', '$2a$12$xOJDEDfUTdVQg.wLosammebZi9HWGk34Niolo.pnjL0QXrYqwTD46', 'ROLE_CLIENTE');

@@ -7,12 +7,11 @@ import com.marcot.projectparkapi.web.exception.ErrorMessage;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import static org.springframework.web.reactive.function.BodyInserters.fromValue;
+import java.util.List;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Sql(scripts = "/sql/users/users-insert.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
@@ -20,297 +19,334 @@ import static org.springframework.web.reactive.function.BodyInserters.fromValue;
 public class UserIT {
 
     @Autowired
-    WebTestClient webTestClient;
+    WebTestClient testClient;
 
     @Test
-    public void createUser_WhenValidUsernameAndPassword_returnsCreatedUser201() {
-        // Arrange
-        UserCreateDto createDto = new UserCreateDto();
-        createDto.setUsername("new.user@techcorp.com"); // Use a unique username for the test
-        createDto.setPassword("123456");
-
-        // Act
-        UserResponseDto responseBody = webTestClient.post()
+    public void createUser_WithValidUsernameAndPassword_ReturnsCreatedUserWithStatus201() {
+        UserResponseDto responseBody = testClient
+                .post()
                 .uri("/api/v1/users")
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(fromValue(createDto))
+                .bodyValue(new UserCreateDto("tody@email.com", "123456"))
                 .exchange()
                 .expectStatus().isCreated()
                 .expectBody(UserResponseDto.class)
                 .returnResult().getResponseBody();
 
-        // Assert
         org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
         org.assertj.core.api.Assertions.assertThat(responseBody.getId()).isNotNull();
-        org.assertj.core.api.Assertions.assertThat(responseBody.getUsername()).isEqualTo("new.user@techcorp.com");
+        org.assertj.core.api.Assertions.assertThat(responseBody.getUsername()).isEqualTo("tody@email.com");
         org.assertj.core.api.Assertions.assertThat(responseBody.getRole()).isEqualTo("CLIENTE");
     }
 
     @Test
-    public void createUser_WhenInvalidUsername_returnsErrroMessageStatus422() {
-
-        webTestClient.post()
+    public void createUser_WithInvalidUsername_ReturnsErrorMessageWithStatus422() {
+        ErrorMessage responseBody = testClient
+                .post()
                 .uri("/api/v1/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(new UserCreateDto("", "123456"))
                 .exchange()
-                .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY) // Use HttpStatus para melhor legibilidade
+                .expectStatus().isEqualTo(422)
                 .expectBody(ErrorMessage.class)
-                .consumeWith(result -> {
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody()).isNotNull();
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getStatus()).isEqualTo(422);
-                });
+                .returnResult().getResponseBody();
 
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getStatus()).isEqualTo(422);
 
-        webTestClient.post()
+        responseBody = testClient
+                .post()
                 .uri("/api/v1/users")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new UserCreateDto("david@", "123456"))
+                .bodyValue(new UserCreateDto("tody@", "123456"))
                 .exchange()
-                .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY) // Use HttpStatus para melhor legibilidade
+                .expectStatus().isEqualTo(422)
                 .expectBody(ErrorMessage.class)
-                .consumeWith(result -> {
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody()).isNotNull();
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getStatus()).isEqualTo(422);
-                });
+                .returnResult().getResponseBody();
 
-        webTestClient.post()
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getStatus()).isEqualTo(422);
+
+        responseBody = testClient
+                .post()
                 .uri("/api/v1/users")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new UserCreateDto("david@email", "123456"))
+                .bodyValue(new UserCreateDto("tody@email", "123456"))
                 .exchange()
-                .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY) // Use HttpStatus para melhor legibilidade
+                .expectStatus().isEqualTo(422)
                 .expectBody(ErrorMessage.class)
-                .consumeWith(result -> {
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody()).isNotNull();
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getStatus()).isEqualTo(422);
-                });
+                .returnResult().getResponseBody();
 
-    }
-
-
-
-    @Test
-    public void createUser_WhenPasswordInvalid_returnsErrorMessageStatus422() {
-
-            webTestClient.post()
-                    .uri("/api/v1/users")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(new UserCreateDto("david@gmail.com", ""))
-                    .exchange()
-                    .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY) // Use HttpStatus para melhor legibilidade
-                    .expectBody(ErrorMessage.class)
-                    .consumeWith(result -> {
-                        org.assertj.core.api.Assertions.assertThat(result.getResponseBody()).isNotNull();
-                        org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getStatus()).isEqualTo(422);
-                    });
-
-
-            webTestClient.post()
-                    .uri("/api/v1/users")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(new UserCreateDto("david@gmail.com", "123"))
-                    .exchange()
-                    .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY) // Use HttpStatus para melhor legibilidade
-                    .expectBody(ErrorMessage.class)
-                    .consumeWith(result -> {
-                        org.assertj.core.api.Assertions.assertThat(result.getResponseBody()).isNotNull();
-                        org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getStatus()).isEqualTo(422);
-                    });
-
-            webTestClient.post()
-                    .uri("/api/v1/users")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(new UserCreateDto("david@gmail.com", "1234567"))
-                    .exchange()
-                    .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY) // Use HttpStatus para melhor legibilidade
-                    .expectBody(ErrorMessage.class)
-                    .consumeWith(result -> {
-                        org.assertj.core.api.Assertions.assertThat(result.getResponseBody()).isNotNull();
-                        org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getStatus()).isEqualTo(422);
-                    });
-
-        }
-
-    @Test
-    public void createUser_WhenDuplicateUsername_returns409Conflict() {
-
-        webTestClient.post()
-                .uri("/api/v1/users")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new UserCreateDto("admin@techcorp.com", "admin1"))
-                .exchange()
-                .expectStatus().isEqualTo(HttpStatus.CONFLICT) // Use HttpStatus para melhor legibilidade
-                .expectBody(ErrorMessage.class)
-                .consumeWith(result -> {
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody()).isNotNull();
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getStatus()).isEqualTo(409);
-                });
-
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getStatus()).isEqualTo(422);
     }
 
     @Test
-    public void findUserById_WhenExistingId_returnsStatus200() {
+    public void createUser_WithInvalidPassword_ReturnsErrorMessageWithStatus422() {
+        ErrorMessage responseBody = testClient
+                .post()
+                .uri("/api/v1/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new UserCreateDto("tody@email.com", ""))
+                .exchange()
+                .expectStatus().isEqualTo(422)
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
 
-        webTestClient.get()
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getStatus()).isEqualTo(422);
+
+        responseBody = testClient
+                .post()
+                .uri("/api/v1/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new UserCreateDto("tody@email.com", "123"))
+                .exchange()
+                .expectStatus().isEqualTo(422)
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
+
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getStatus()).isEqualTo(422);
+
+        responseBody = testClient
+                .post()
+                .uri("/api/v1/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new UserCreateDto("tody@email.com", "123456789"))
+                .exchange()
+                .expectStatus().isEqualTo(422)
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
+
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getStatus()).isEqualTo(422);
+    }
+
+    @Test
+    public void createUser_WithDuplicateUsername_ReturnsErrorMessageWithStatus409() {
+        ErrorMessage responseBody = testClient
+                .post()
+                .uri("/api/v1/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new UserCreateDto("john.doe@innovatech.com", "123456"))
+                .exchange()
+                .expectStatus().isEqualTo(409)
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
+
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getStatus()).isEqualTo(409);
+    }
+
+    @Test
+    public void findUser_WithExistingId_ReturnsUserWithStatus200() {
+        UserResponseDto responseBody = testClient
+                .get()
                 .uri("/api/v1/users/100")
-                .headers(JwtAuthentication.getHeaderAuthorization(webTestClient,"admin@techcorp.com","123456"))
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alan@techcorp.com", "123456"))
                 .exchange()
-                .expectStatus().isOk() // Use HttpStatus para melhor legibilidade
+                .expectStatus().isOk()
                 .expectBody(UserResponseDto.class)
-                .consumeWith(result -> {
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody()).isNotNull();
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getId()).isEqualTo(100);
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getUsername()).isEqualTo("admin@techcorp.com");
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getRole()).isEqualTo("ADMIN");
-                });
+                .returnResult().getResponseBody();
 
-        webTestClient.get()
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getId()).isEqualTo(100);
+        org.assertj.core.api.Assertions.assertThat(responseBody.getUsername()).isEqualTo("alan@techcorp.com");
+        org.assertj.core.api.Assertions.assertThat(responseBody.getRole()).isEqualTo("ADMIN");
+
+        responseBody = testClient
+                .get()
                 .uri("/api/v1/users/101")
-                .headers(JwtAuthentication.getHeaderAuthorization(webTestClient,"admin@techcorp.com","123456"))
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alan@techcorp.com", "123456"))
                 .exchange()
-                .expectStatus().isOk() // Use HttpStatus para melhor legibilidade
+                .expectStatus().isOk()
                 .expectBody(UserResponseDto.class)
-                .consumeWith(result -> {
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody()).isNotNull();
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getId()).isEqualTo(101);
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getUsername()).isEqualTo("john.doe@innovatech.com");
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getRole()).isEqualTo("CLIENTE");
-                });
+                .returnResult().getResponseBody();
 
-        webTestClient.get()
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getId()).isEqualTo(101);
+        org.assertj.core.api.Assertions.assertThat(responseBody.getUsername()).isEqualTo("john.doe@innovatech.com");
+        org.assertj.core.api.Assertions.assertThat(responseBody.getRole()).isEqualTo("CLIENTE");
+
+        responseBody = testClient
+                .get()
                 .uri("/api/v1/users/101")
-                .headers(JwtAuthentication.getHeaderAuthorization(webTestClient,"john.doe@innovatech.com","123456"))
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "john.doe@innovatech.com", "123456"))
                 .exchange()
-                .expectStatus().isOk() // Use HttpStatus para melhor legibilidade
+                .expectStatus().isOk()
                 .expectBody(UserResponseDto.class)
-                .consumeWith(result -> {
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody()).isNotNull();
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getId()).isEqualTo(101);
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getUsername()).isEqualTo("john.doe@innovatech.com");
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getRole()).isEqualTo("CLIENTE");
-                });
+                .returnResult().getResponseBody();
 
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getId()).isEqualTo(101);
+        org.assertj.core.api.Assertions.assertThat(responseBody.getUsername()).isEqualTo("john.doe@innovatech.com");
+        org.assertj.core.api.Assertions.assertThat(responseBody.getRole()).isEqualTo("CLIENTE");
     }
 
     @Test
-    public void findUserById_WhenNotFoundId_ReturnsNotFound() {
-
-        webTestClient.get()
-                .uri("/api/v1/users/99")
+    public void findUser_WithNonExistingId_ReturnsErrorMessageWithStatus404() {
+        ErrorMessage responseBody = testClient
+                .get()
+                .uri("/api/v1/users/0")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alan@techcorp.com", "123456"))
                 .exchange()
-                .expectStatus().isNotFound() // Use HttpStatus para melhor legibilidade
+                .expectStatus().isNotFound()
                 .expectBody(ErrorMessage.class)
-                .consumeWith(result -> {
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody()).isNotNull();
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getStatus()).isEqualTo(404);
-
-                });
+                .returnResult().getResponseBody();
 
     }
 
     @Test
-    public void updatePassword_WhenDataIsValid_ReturnStatusNoContent() {
+    public void findUser_WithClientUserSearchingAnotherClient_ReturnsErrorMessageWithStatus403() {
+        ErrorMessage responseBody = testClient
+                .get()
+                .uri("/api/v1/users/102")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "john.doe@innovatech.com", "123456"))
+                .exchange()
+                .expectStatus().isForbidden()
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
 
-        webTestClient.patch()
+    }
+
+    @Test
+    public void updatePassword_WithValidData_ReturnsStatus204() {
+        testClient
+                .patch()
                 .uri("/api/v1/users/100")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alan@techcorp.com", "123456"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new UserPasswordDto("admin1", "123456","123456"))
+                .bodyValue(new UserPasswordDto("123456", "123456", "123456"))
                 .exchange()
-                .expectStatus().isNoContent() // Use HttpStatus para melhor legibilidade
-                .expectBody(ErrorMessage.class);
+                .expectStatus().isNoContent();
 
-
+        testClient
+                .patch()
+                .uri("/api/v1/users/101")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "john.doe@innovatech.com", "123456"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new UserPasswordDto("123456", "123456", "123456"))
+                .exchange()
+                .expectStatus().isNoContent();
     }
 
     @Test
-    public void shouldReturn404_WhenUpdatingPassword_WithInvalidId() {
-
-        webTestClient.patch()
-                .uri("/api/v1/users/99")
+    public void updatePassword_WithDifferentUsers_ReturnsErrorMessageWithStatus403() {
+        ErrorMessage responseBody = testClient
+                .patch()
+                .uri("/api/v1/users/103")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "john.doe@innovatech.com", "123456"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new UserPasswordDto("admin1", "123456","123456"))
+                .bodyValue(new UserPasswordDto("123456", "123456", "123456"))
                 .exchange()
-                .expectStatus().isNotFound() // Use HttpStatus para melhor legibilidade
+                .expectStatus().isForbidden()
                 .expectBody(ErrorMessage.class)
-                .consumeWith(result -> {
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody()).isNotNull();
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getStatus()).isEqualTo(404);
-
-                });
-
+                .returnResult().getResponseBody();
     }
 
     @Test
-    public void updatePassword_WithInvalidFields_ReturnsUNPROCESSABLE_ENTITY() {
-
-        webTestClient.patch()
+    public void updatePassword_WithInvalidFields_ReturnsErrorMessageWithStatus422() {
+        ErrorMessage responseBody = testClient
+                .patch()
                 .uri("/api/v1/users/100")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alan@techcorp.com", "123456"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new UserPasswordDto("", "",""))
+                .bodyValue(new UserPasswordDto("", "", ""))
                 .exchange()
-                .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY)
+                .expectStatus().isEqualTo(422)
                 .expectBody(ErrorMessage.class)
-                .consumeWith(result -> {
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody()).isNotNull();
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getStatus()).isEqualTo(422);
+                .returnResult().getResponseBody();
 
-                });
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getStatus()).isEqualTo(422);
 
-        webTestClient.patch()
+        responseBody = testClient
+                .patch()
                 .uri("/api/v1/users/100")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alan@techcorp.com", "123456"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new UserPasswordDto("1234567", "1234567","1234567"))
+                .bodyValue(new UserPasswordDto("12345", "12345", "12345"))
                 .exchange()
-                .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY)
+                .expectStatus().isEqualTo(422)
                 .expectBody(ErrorMessage.class)
-                .consumeWith(result -> {
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody()).isNotNull();
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getStatus()).isEqualTo(422);
+                .returnResult().getResponseBody();
 
-                });
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getStatus()).isEqualTo(422);
+
+        responseBody = testClient
+                .patch()
+                .uri("/api/v1/users/100")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alan@techcorp.com", "123456"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new UserPasswordDto("12345678", "12345678", "12345678"))
+                .exchange()
+                .expectStatus().isEqualTo(422)
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
+
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getStatus()).isEqualTo(422);
     }
 
     @Test
-    public void updatePassword_WhenInvalidInput_Returns400() {
-
-        webTestClient.patch()
+    public void updatePassword_WithInvalidPasswords_ReturnsErrorMessageWithStatus400() {
+        ErrorMessage responseBody = testClient
+                .patch()
                 .uri("/api/v1/users/100")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alan@techcorp.com", "123456"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new UserPasswordDto("123456", "123456","000000"))
+                .bodyValue(new UserPasswordDto("123456", "123456", "000000"))
                 .exchange()
-                .expectStatus().isEqualTo(HttpStatus.BAD_REQUEST)
+                .expectStatus().isEqualTo(400)
                 .expectBody(ErrorMessage.class)
-                .consumeWith(result -> {
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody()).isNotNull();
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getStatus()).isEqualTo(400);
+                .returnResult().getResponseBody();
 
-                });
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getStatus()).isEqualTo(400);
 
-        webTestClient.patch()
+        responseBody = testClient
+                .patch()
                 .uri("/api/v1/users/100")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alan@techcorp.com", "123456"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new UserPasswordDto("000000", "123456","123456"))
+                .bodyValue(new UserPasswordDto("000000", "123456", "123456"))
                 .exchange()
-                .expectStatus().isEqualTo(HttpStatus.BAD_REQUEST)
+                .expectStatus().isEqualTo(400)
                 .expectBody(ErrorMessage.class)
-                .consumeWith(result -> {
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody()).isNotNull();
-                    org.assertj.core.api.Assertions.assertThat(result.getResponseBody().getStatus()).isEqualTo(400);
+                .returnResult().getResponseBody();
 
-                });
-
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getStatus()).isEqualTo(400);
     }
 
     @Test
-    public void getAllUsers_ReturnStatus200AndListOfUsers() {
-
-        webTestClient.get()
+    public void listUsers_WithUserWithPermission_ReturnsListOfUsersWithStatus200() {
+        List<UserResponseDto> responseBody = testClient
+                .get()
                 .uri("/api/v1/users")
-                .accept(MediaType.APPLICATION_JSON)
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alan@techcorp.com", "123456"))
                 .exchange()
-                .expectStatus().isOk() // Use HttpStatus para melhor legibilidade
-                .expectHeader().contentType(MediaType.APPLICATION_JSON);
+                .expectStatus().isOk()
+                .expectBodyList(UserResponseDto.class)
+                .returnResult().getResponseBody();
+
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.size()).isEqualTo(5);
+    }
+
+    @Test
+    public void listUsers_WithUserWithoutPermission_ReturnsErrorMessageWithStatus403() {
+        ErrorMessage responseBody = testClient
+                .get()
+                .uri("/api/v1/users")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, "john.doe@innovatech.com", "123456"))
+                .exchange()
+                .expectStatus().isForbidden()
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
+
     }
 
 }
