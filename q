@@ -1,0 +1,179 @@
+[33mcommit 7d971177b744f5388583449f939167f6bc042daa[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m)[m
+Author: MAntonioST <marco.teixeira4@fatec.sp.gov.br>
+Date:   Mon Jul 8 10:19:23 2024 -0300
+
+    feat: Enable access to OpenAPI Swagger documentation resources
+
+[33mcommit d679a9a8dcff19883a7a4fab87f4f5f0eaaab7c7[m[33m ([m[1;31morigin/main[m[33m)[m
+Author: MAntonioST <marco.teixeira4@fatec.sp.gov.br>
+Date:   Mon Jul 8 09:24:03 2024 -0300
+
+    feat: add error handling for 401 (Unauthorized) and 403 (Forbidden) status codes to provide meaningful error responses to the client.
+
+[33mcommit 786b4f0570e79e0e25b6893774975c5dd82ba9aa[m
+Author: MAntonioST <marco.teixeira4@fatec.sp.gov.br>
+Date:   Mon Jul 8 09:03:25 2024 -0300
+
+    feat: add Spring Security configuration to handle authorization for ADMIN and CLIENT roles
+
+[33mcommit 9250b27ed91a4503e52318867c4f714ac2d583e6[m
+Author: MAntonioST <marco.teixeira4@fatec.sp.gov.br>
+Date:   Sun Jul 7 10:03:52 2024 -0300
+
+     feat(security): Add admin user access permissions
+
+[33mcommit c2edd9ad7904e43236d5ee066e8601634359c7f9[m
+Author: MAntonioST <marco.teixeira4@fatec.sp.gov.br>
+Date:   Sun Jul 7 09:31:21 2024 -0300
+
+    feat(audit): Implement user action auditing functionality
+
+[33mcommit 0a14b4fbfa6d6d6847e62153b3d46939f52fb8df[m
+Author: MAntonioST <marco.teixeira4@fatec.sp.gov.br>
+Date:   Sun Jul 7 09:30:35 2024 -0300
+
+    feat(audit): Implement user action auditing functionality
+
+[33mcommit e00144f0ca58799c4c08f1936c64e2476299b0f1[m
+Author: MAntonioST <marco.teixeira4@fatec.sp.gov.br>
+Date:   Sat Jul 6 11:40:09 2024 -0300
+
+    feat: implement JWT token generation and validation logic
+
+[33mcommit 642ae293e8c1f7633ba710a98b5a12c35079b37c[m
+Author: MAntonioST <marco.teixeira4@fatec.sp.gov.br>
+Date:   Sun Jun 23 13:25:46 2024 -0300
+
+    feat: add filter JwtAuthorization
+
+[33mcommit 8d68f204f1927c3c4caac85cd9a113559f5795b6[m
+Author: MAntonioST <marco.teixeira4@fatec.sp.gov.br>
+Date:   Sun Jun 23 11:07:49 2024 -0300
+
+    refactor : refactor User to UserEntity and add JwtUserDetailsService
+
+[33mcommit f789e2debe8986c4bf2db4645111a8a7f20907e3[m
+Author: MAntonioST <marco.teixeira4@fatec.sp.gov.br>
+Date:   Sun Jun 23 09:34:22 2024 -0300
+
+    feat: add Json Web Token
+
+[33mcommit 647fc0aff908df9f8f79861549fd151ed608a560[m
+Author: MAntonioST <marco.teixeira4@fatec.sp.gov.br>
+Date:   Sun Jun 23 08:27:02 2024 -0300
+
+    feat: Integrate Spring Security into the application
+
+[33mcommit a4b6f83513276837843bdb5dd650b2b14ed8cd63[m
+Author: MAntonioST <marco.teixeira4@fatec.sp.gov.br>
+Date:   Sat Jun 22 12:19:42 2024 -0300
+
+    feat: add test for finAll users
+
+[33mcommit 5580706b8941334b195cdabf45d7e6812692d2a3[m
+Author: MAntonioST <marco.teixeira4@fatec.sp.gov.br>
+Date:   Sat Jun 22 12:06:57 2024 -0300
+
+    feat: add tests verify password confirmation is required
+
+[33mcommit 163cdec84fc86b9640139a3753408680d2901c06[m
+Author: MAntonioST <marco.teixeira4@fatec.sp.gov.br>
+Date:   Sat Jun 22 10:59:10 2024 -0300
+
+    test: add case for non-existent ID in User retrieval, return status 404
+
+[33mcommit 49edc718ca150c074da64c2d26416ea3defe1ee3[m
+Author: MAntonioST <marco.teixeira4@fatec.sp.gov.br>
+Date:   Sat Jun 22 10:34:32 2024 -0300
+
+    refactor: refactor test check for 409 status code on duplicate username
+
+[33mcommit efe2920173d1bcf74732ce445aeb8fef28f2e513[m
+Author: MAntonioST <marco.teixeira4@fatec.sp.gov.br>
+Date:   Sat Jun 22 09:16:19 2024 -0300
+
+    refactor: Add test case for 422 Unprocessable Entity response when attempting to create a user with invalid data
+
+[33mcommit 907006fa570f89234fc4694779d57427005bb4ed[m
+Author: MAntonioST <marco.teixeira4@fatec.sp.gov.br>
+Date:   Mon Jun 17 11:11:14 2024 -0300
+
+    feat: Add tests for invalid username, short password, non-existing user ID, and existing username scenarios
+
+[33mcommit b3f06b53a01dfba8128e0a9d03c0955c2020967e[m
+Author: MAntonioST <marco.teixeira4@fatec.sp.gov.br>
+Date:   Mon Jun 17 08:10:05 2024 -0300
+
+    feat: add integration test for user creation
+
+[33mcommit 880b0b0789b803fb1788f4f51f31a383f6a006de[m
+Author: MAntonioST <marco.teixeira4@fatec.sp.gov.br>
+Date:   Mon Jun 17 06:48:41 2024 -0300
+
+    feat: Add Swagger documentation annotations to UserController
+
+[33mcommit cf6ad82bb6b48a087ee491d546e63fe8bd5d1370[m
+Author: MAntonioST <marco.teixeira4@fatec.sp.gov.br>
+Date:   Sun Jun 16 10:22:21 2024 -0300
+
+    feat: Add exception handling for user registration
+
+[33mcommit 108ac3332933d0fd925e0304ac6d16f3148f142e[m
+Author: MAntonioST <marco.teixeira4@fatec.sp.gov.br>
+Date:   Sat Jun 1 12:07:42 2024 -0300
+
+    feat: Add feature to return list of users as UserResponseDto
+
+[33mcommit 319516d12144dc50b9f0cfb4bc5b810c55fdd2cc[m
+Author: MAntonioST <marco.teixeira4@fatec.sp.gov.br>
+Date:   Sat Jun 1 11:50:03 2024 -0300
+
+    feat: Add feature to confirm password during password update
+
+[33mcommit ccfb7343bcb19d53854f0983e9fe44e6c404add4[m
+Author: MAntonioST <marco.teixeira4@fatec.sp.gov.br>
+Date:   Sat Jun 1 09:49:53 2024 -0300
+
+    feat: Add DTO using record for UserCreateDtro and  UserResponseDto and implement User mapping
+
+[33mcommit 8cd2f2ae320ef4d965da0b83b25bcbc4eacc90d9[m
+Author: MAntonioST <marco.teixeira4@fatec.sp.gov.br>
+Date:   Sat Jun 1 07:51:53 2024 -0300
+
+    feat: Add feature to retrieve all users
+
+[33mcommit 50ea785b8b24ba9b4a6809b26d96b8afa853ffa1[m
+Author: MAntonioST <marco.teixeira4@fatec.sp.gov.br>
+Date:   Sat Jun 1 07:37:30 2024 -0300
+
+    feat: Add feature to update user password
+
+[33mcommit ff6aed4cb57a268ec42f65e393b0883bcf024563[m
+Author: MAntonioST <marco.teixeira4@fatec.sp.gov.br>
+Date:   Fri May 31 12:50:23 2024 -0300
+
+    feat(user): add search by ID functionality
+
+[33mcommit 0c3e254925f0f8e9e4e89b2ddd3ce88d20654705[m
+Author: MAntonioST <marco.teixeira4@fatec.sp.gov.br>
+Date:   Fri May 31 10:01:31 2024 -0300
+
+    feat: Add POST request for user creation
+
+[33mcommit 875454a208a6507626d4b37198dd382ff517965c[m
+Author: MAntonioST <marco.teixeira4@fatec.sp.gov.br>
+Date:   Fri May 31 09:19:06 2024 -0300
+
+    feat: Add save user functionality
+
+[33mcommit 359cb0cca5c142c716b558e68d689abe09686f34[m
+Author: MAntonioST <marco.teixeira4@fatec.sp.gov.br>
+Date:   Fri May 31 08:32:24 2024 -0300
+
+    feat: Add User entity with basic fields and Jakarta Persistence annotations
+
+[33mcommit 7df8041d6e74985cd669bfa6112d9514f5e45e7e[m
+Author: MAntonioST <marco.teixeira4@fatec.sp.gov.br>
+Date:   Thu May 30 12:17:10 2024 -0300
+
+    Project started

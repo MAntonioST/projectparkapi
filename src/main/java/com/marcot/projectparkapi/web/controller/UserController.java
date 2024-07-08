@@ -9,16 +9,17 @@ import com.marcot.projectparkapi.web.dto.UserResponseDto;
 import com.marcot.projectparkapi.web.dto.mapper.UserMapper;
 import com.marcot.projectparkapi.web.exception.ErrorMessage;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -49,11 +50,14 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(UserMapper.toDto(user));
     }
 
-    @Operation(summary = "Get user by ID", description = "Returns the user data corresponding to the provided ID")
+    @Operation(summary = "Get user by ID", description = "Request requires a Bearer Token. Access restricted to ADMIN",
+            security = @SecurityRequirement(name = "security"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User found", content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = UserResponseDto.class))),
             @ApiResponse(responseCode = "404", description = "User not found", content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorMessage.class))),
+            @ApiResponse(responseCode = "403", description = "Usuário sem permissão para acessar este recurso", content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ErrorMessage.class)))
     })
     @GetMapping("/{id}")
@@ -62,7 +66,8 @@ public class UserController {
         return ResponseEntity.ok(UserMapper.toDto(user));
     }
 
-    @Operation(summary = "Update user password", description = "Updates the password of the user corresponding to the provided ID")
+    @Operation(summary = "Update user password", description = "Request requires a Bearer Token. Access restricted to ADMIN",
+            security = @SecurityRequirement(name = "security"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Password successfully updated",  content = @Content),
             @ApiResponse(responseCode = "400", description = "Invalid data provided", content = @Content(mediaType = "application/json",
@@ -70,19 +75,27 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User not found", content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ErrorMessage.class))),
             @ApiResponse(responseCode = "422", description = "Unprocessable Entity - Validation errors",content = @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = ErrorMessage.class)))
+                    schema = @Schema(implementation = ErrorMessage.class))),
+            @ApiResponse(responseCode = "403", description = "Usuário sem permissão para acessar este recurso", content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorMessage.class)))
     })
     @PatchMapping("/{id}")
-    public ResponseEntity<Void> updateUser(@PathVariable Long id, @Valid @RequestBody UserPasswordDto dto) {
+    public ResponseEntity<Void> updatePassword(@PathVariable Long id, @Valid @RequestBody UserPasswordDto dto) {
         UserEntity user = userService.updatePassword(id, dto.getCurrentPassword(), dto.getNewPassword(), dto.getConfirmPassword());
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "List all users", description = "Returns a list of all registered users")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "List of users successfully returned", content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = UserResponseDto.class)))
-    })
+    @Operation(summary = "List all registered users", description = "Request requires a Bearer Token. Access restricted to ADMIN",
+            security = @SecurityRequirement(name = "security"),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Lista com todos os usuários cadastrados",
+                            content = @Content(mediaType = "application/json",
+                                    array = @ArraySchema(schema = @Schema(implementation = UserResponseDto.class)))),
+                    @ApiResponse(responseCode = "403", description = "Usuário sem permissão para acessar este recurso",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class))),
+                    @ApiResponse(responseCode = "403", description = "Usuário sem permissão para acessar este recurso",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
+            })
     @GetMapping
     public ResponseEntity<List<UserResponseDto>> getAllUsers() {
         List<UserEntity> users = userService.findAllUsers();
