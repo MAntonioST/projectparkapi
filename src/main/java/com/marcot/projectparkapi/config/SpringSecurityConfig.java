@@ -2,7 +2,6 @@ package com.marcot.projectparkapi.config;
 
 
 import com.marcot.projectparkapi.entity.UserEntity;
-import com.marcot.projectparkapi.jwt.JwtAuthenticationEntryPoint;
 import com.marcot.projectparkapi.jwt.JwtAuthorizationFilter;
 import com.marcot.projectparkapi.repository.UserEntityRepository;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +35,14 @@ public class SpringSecurityConfig {
     @Autowired
     private UserEntityRepository userEntityRepository;
 
+    private static final String[] DOCUMENTATION_OPENAPI = {
+            "/docs/index.html",
+            "/docs-park.html", "/docs-park/**",
+            "/v3/api-docs/**",
+            "/swagger-ui-custom.html", "/swagger-ui.html", "/swagger-ui/**",
+            "/**.html", "/webjars/**", "/configuration/**", "/swagger-resources/**"
+    };
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
@@ -45,10 +52,11 @@ public class SpringSecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "api/v1/users").permitAll()
                         .requestMatchers(HttpMethod.POST, "api/v1/auth").permitAll()
+                        .requestMatchers(DOCUMENTATION_OPENAPI).permitAll()
                         .requestMatchers(HttpMethod.GET, "api/v1/users").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "api/v1/users/{id}")
                         .access(createAuthorizationManager("ADMIN", true))
-                        .requestMatchers(HttpMethod.PUT, "api/v1/users/{id}")
+                        .requestMatchers(HttpMethod.PATCH, "api/v1/users/{id}")
                         .access(createAuthorizationManager("ADMIN", true))
                         .requestMatchers(HttpMethod.DELETE, "api/v1/users/{id}")
                         .access(createAuthorizationManager("ADMIN", true))
@@ -56,7 +64,6 @@ public class SpringSecurityConfig {
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(ex -> ex.authenticationEntryPoint(new JwtAuthenticationEntryPoint()))
                 .build();
     }
 
