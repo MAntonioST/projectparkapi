@@ -2,9 +2,7 @@ package com.marcot.projectparkapi;
 
 
 import com.marcot.projectparkapi.jwt.JwtToken;
-import com.marcot.projectparkapi.web.dto.UserCreateDto;
 import com.marcot.projectparkapi.web.dto.UserLoginDto;
-import com.marcot.projectparkapi.web.dto.UserResponseDto;
 import com.marcot.projectparkapi.web.exception.ErrorMessage;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -9,7 +9,6 @@ import com.marcot.projectparkapi.web.dto.CustomerCreateDto;
 import com.marcot.projectparkapi.web.dto.mapper.CustomerMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
