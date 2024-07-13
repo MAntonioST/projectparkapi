@@ -1,5 +1,6 @@
 package com.marcot.projectparkapi.web.exception;
 
+import com.marcot.projectparkapi.exception.CpfUniqueViolationException;
 import com.marcot.projectparkapi.exception.EntityNotFoundException;
 import com.marcot.projectparkapi.exception.PasswordInvalidException;
 import com.marcot.projectparkapi.exception.UsernameUniqueViolationException;
@@ -60,7 +61,7 @@ public class ApiExceptionHandler {
 
     }
 
-    @ExceptionHandler(UsernameUniqueViolationException.class)
+    @ExceptionHandler({UsernameUniqueViolationException.class, CpfUniqueViolationException.class})
     public ResponseEntity<ErrorMessage> uniqueViolationException(RuntimeException ex,
                                                                        HttpServletRequest request){
 

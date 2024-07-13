@@ -1,6 +1,5 @@
 package com.marcot.projectparkapi.config;
 
-
 import com.marcot.projectparkapi.entity.UserEntity;
 import com.marcot.projectparkapi.jwt.JwtAuthorizationFilter;
 import com.marcot.projectparkapi.repository.UserEntityRepository;
@@ -23,8 +22,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-
-import java.util.function.Supplier;
 
 @EnableMethodSecurity
 @EnableWebMvc
@@ -50,7 +47,13 @@ public class SpringSecurityConfig {
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "api/v1/users").permitAll()
+                        .requestMatchers(HttpMethod.POST, "api/v1/users").access((authentication, context) -> {
+                            Authentication authen = authentication.get();
+                            if (authen == null || !authen.isAuthenticated()) {
+                                return new AuthorizationDecision(true);
+                            }
+                            return new AuthorizationDecision(!hasRole(authen, "ADMIN"));
+                        })
                         .requestMatchers(HttpMethod.POST, "api/v1/auth").permitAll()
                         .requestMatchers(DOCUMENTATION_OPENAPI).permitAll()
                         .requestMatchers(HttpMethod.GET, "api/v1/users").hasRole("ADMIN")
@@ -69,32 +72,30 @@ public class SpringSecurityConfig {
 
     private AuthorizationManager<RequestAuthorizationContext> createAuthorizationManager(String role, boolean adminAccessAllowed) {
         return (authentication, context) -> {
-            if (hasRole(authentication, role)) {
+            Authentication auth = authentication.get();
+            if (hasRole(auth, role)) {
                 return new AuthorizationDecision(true);
             }
-            if (adminAccessAllowed && hasRole(authentication, "ADMIN")) {
+            if (adminAccessAllowed && hasRole(auth, "ADMIN")) {
                 return new AuthorizationDecision(true);
             }
             Long userId = Long.parseLong(context.getVariables().get("id"));
-            return new AuthorizationDecision(hasUserId(authentication, userId));
+            return new AuthorizationDecision(hasUserId(auth, userId));
         };
     }
 
-    private boolean hasUserId(Supplier<Authentication> authentication, Long userId) {
-        Authentication auth = authentication.get();
-        if (auth != null && auth.isAuthenticated()) {
-            UserEntity user = userEntityRepository.findByUsername(auth.getName()).orElse(null);
+    private boolean hasUserId(Authentication authentication, Long userId) {
+        if (authentication != null && authentication.isAuthenticated()) {
+            UserEntity user = userEntityRepository.findByUsername(authentication.getName()).orElse(null);
             return user != null && user.getId().equals(userId);
         }
         return false;
     }
 
-    private boolean hasRole(Supplier<Authentication> authentication, String role) {
-        Authentication auth = authentication.get();
-        return auth != null && auth.getAuthorities().stream()
+    private boolean hasRole(Authentication authentication, String role) {
+        return authentication != null && authentication.getAuthorities().stream()
                 .anyMatch(authority -> authority.getAuthority().equals("ROLE_" + role));
     }
-
 
     @Bean
     public JwtAuthorizationFilter jwtAuthorizationFilter() {
@@ -110,6 +111,4 @@ public class SpringSecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
-
-
 }
