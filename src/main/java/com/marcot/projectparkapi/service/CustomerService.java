@@ -3,6 +3,7 @@ package com.marcot.projectparkapi.service;
 
 import com.marcot.projectparkapi.entity.CustomerEntity;
 import com.marcot.projectparkapi.exception.CpfUniqueViolationException;
+import com.marcot.projectparkapi.exception.EntityNotFoundException;
 import com.marcot.projectparkapi.jwt.JwtUserDetails;
 import com.marcot.projectparkapi.repository.CustomerEntityRepository;
 import com.marcot.projectparkapi.web.dto.CustomerCreateDto;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -22,8 +24,8 @@ public class CustomerService {
     private final UserService userService;
 
 
-
-    public CustomerEntity save(CustomerCreateDto dto) {
+    @Transactional
+    public CustomerEntity createCustomer(CustomerCreateDto dto) {
         CustomerEntity customer = CustomerMapper.toCustomer(dto);
         // Get the authenticated user details
         JwtUserDetails userDetails = (JwtUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -38,15 +40,16 @@ public class CustomerService {
 
     }
 
-    public List<CustomerEntity> findAll() {
+    @Transactional(readOnly = true)
+    public CustomerEntity findById(Long id) {
+        return customerRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException(String.format("Customer id=%s not found in system", id))
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public List<CustomerEntity> buscarTodos() {
         return customerRepository.findAll();
     }
 
-    public CustomerEntity findById(Long id) {
-        return customerRepository.findById(id).get();
-    }
-
-    public void deleteById(Long id) {
-        customerRepository.deleteById(id);
-    }
 }

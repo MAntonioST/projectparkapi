@@ -7,6 +7,9 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.modelmapper.ModelMapper;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CustomerMapper {
 
@@ -16,5 +19,11 @@ public class CustomerMapper {
 
     public static CustomerResponseDto toDto(CustomerEntity customer){
         return  new ModelMapper().map(customer, CustomerResponseDto.class);
+    }
+
+    public static List<CustomerResponseDto> toDtoList(List<CustomerEntity> customerList) {
+        return customerList.stream()
+                .map(CustomerMapper::toDto)
+                .collect(Collectors.toList());
     }
 }
