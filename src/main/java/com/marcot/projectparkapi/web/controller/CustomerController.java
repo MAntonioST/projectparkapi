@@ -1,11 +1,14 @@
 package com.marcot.projectparkapi.web.controller;
 
 import com.marcot.projectparkapi.entity.CustomerEntity;
+import com.marcot.projectparkapi.repository.projection.CustomerProjection;
 import com.marcot.projectparkapi.service.CustomerService;
 import com.marcot.projectparkapi.web.dto.CustomerCreateDto;
 import com.marcot.projectparkapi.web.dto.CustomerResponseDto;
+import com.marcot.projectparkapi.web.dto.PageableDto;
 import com.marcot.projectparkapi.web.dto.UserResponseDto;
 import com.marcot.projectparkapi.web.dto.mapper.CustomerMapper;
+import com.marcot.projectparkapi.web.dto.mapper.PageableMapper;
 import com.marcot.projectparkapi.web.exception.ErrorMessage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,8 +19,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -59,7 +63,6 @@ public class CustomerController {
                             content = @Content(mediaType = "application/json;charset=UTF-8", schema = @Schema(implementation = ErrorMessage.class)))
             })
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CustomerResponseDto> getById(@PathVariable Long id) {
         CustomerEntity customerEntity = customerService.findById(id);
         return ResponseEntity.ok(CustomerMapper.toDto(customerEntity));
@@ -93,8 +96,8 @@ public class CustomerController {
                     )
             })*/
     @GetMapping
-    public ResponseEntity<List<CustomerResponseDto>> getAll() {
-        List<CustomerEntity> customers = customerService.buscarTodos();
-        return ResponseEntity.ok(CustomerMapper.toDtoList(customers));
+    public ResponseEntity<PageableDto> getAll(Pageable pageable) {
+        Page<CustomerProjection> customers = customerService.getAllCustomers(pageable);
+        return ResponseEntity.ok(PageableMapper.toDto(customers));
     }
 }

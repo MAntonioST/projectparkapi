@@ -6,10 +6,13 @@ import com.marcot.projectparkapi.exception.CpfUniqueViolationException;
 import com.marcot.projectparkapi.exception.EntityNotFoundException;
 import com.marcot.projectparkapi.jwt.JwtUserDetails;
 import com.marcot.projectparkapi.repository.CustomerEntityRepository;
+import com.marcot.projectparkapi.repository.projection.CustomerProjection;
 import com.marcot.projectparkapi.web.dto.CustomerCreateDto;
 import com.marcot.projectparkapi.web.dto.mapper.CustomerMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,8 +51,8 @@ public class CustomerService {
     }
 
     @Transactional(readOnly = true)
-    public List<CustomerEntity> buscarTodos() {
-        return customerRepository.findAll();
+    public Page<CustomerProjection> getAllCustomers(Pageable pageable) {
+        return customerRepository.findAllPageable(pageable);
     }
 
 }

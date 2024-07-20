@@ -21,9 +21,4 @@ public class CustomerMapper {
         return  new ModelMapper().map(customer, CustomerResponseDto.class);
     }
 
-    public static List<CustomerResponseDto> toDtoList(List<CustomerEntity> customerList) {
-        return customerList.stream()
-                .map(CustomerMapper::toDto)
-                .collect(Collectors.toList());
-    }
 }
