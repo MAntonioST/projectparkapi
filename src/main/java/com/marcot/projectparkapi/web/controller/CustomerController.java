@@ -1,6 +1,7 @@
 package com.marcot.projectparkapi.web.controller;
 
 import com.marcot.projectparkapi.entity.CustomerEntity;
+import com.marcot.projectparkapi.jwt.JwtUserDetails;
 import com.marcot.projectparkapi.repository.projection.CustomerProjection;
 import com.marcot.projectparkapi.service.CustomerService;
 import com.marcot.projectparkapi.web.dto.CustomerCreateDto;
@@ -11,6 +12,8 @@ import com.marcot.projectparkapi.web.dto.mapper.CustomerMapper;
 import com.marcot.projectparkapi.web.dto.mapper.PageableMapper;
 import com.marcot.projectparkapi.web.exception.ErrorMessage;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -21,10 +24,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import static io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY;
 
 @RequiredArgsConstructor
 @RestController
@@ -34,7 +39,8 @@ public class CustomerController {
 
     private final CustomerService customerService;
 
-    @Operation(summary = "Create a new customer", description = "Resource to create a new customer linked to a registered user")
+    @Operation(summary = "Create a new customer", description = "Resource to create a new customer linked to a registered user",
+            security = @SecurityRequirement(name = "security"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Customer successfully created",content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = UserResponseDto.class))),
@@ -67,7 +73,7 @@ public class CustomerController {
         CustomerEntity customerEntity = customerService.findById(id);
         return ResponseEntity.ok(CustomerMapper.toDto(customerEntity));
     }
-/*
+
     @Operation(summary = "Retrieve list of customers",
             description = "Request requires the use of a bearer token. Access restricted to Role='ADMIN'",
             security = @SecurityRequirement(name = "security"),
@@ -94,10 +100,29 @@ public class CustomerController {
                             content = @Content(mediaType = "application/json;charset=UTF-8",
                                     schema = @Schema(implementation = ErrorMessage.class))
                     )
-            })*/
+            })
     @GetMapping
-    public ResponseEntity<PageableDto> getAll(Pageable pageable) {
+    public ResponseEntity<PageableDto> getAll(@Parameter(hidden = true) @PageableDefault(size = 5, sort = {"name"}) Pageable pageable) {
         Page<CustomerProjection> customers = customerService.getAllCustomers(pageable);
         return ResponseEntity.ok(PageableMapper.toDto(customers));
+    }
+
+    @Operation(summary = "Retrieve authenticated client data",
+            description = "Request requires the use of a bearer token. Access restricted to Role='CLIENT'",
+            security = @SecurityRequirement(name = "security"),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Resource successfully retrieved",
+                            content = @Content(mediaType = "application/json;charset=UTF-8",
+                                    schema = @Schema(implementation = CustomerResponseDto.class))
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Resource not allowed for ADMIN profile",
+                            content = @Content(mediaType = "application/json;charset=UTF-8",
+                                    schema = @Schema(implementation = ErrorMessage.class))
+                    )
+            })
+    @GetMapping("/details")
+    public ResponseEntity<CustomerResponseDto> getDetails(@AuthenticationPrincipal JwtUserDetails userDetails) {
+        CustomerEntity customer = customerService.findByUserId(userDetails.getId());
+        return ResponseEntity.ok(CustomerMapper.toDto(customer));
     }
 }

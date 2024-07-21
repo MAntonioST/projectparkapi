@@ -2,6 +2,7 @@ package com.marcot.projectparkapi;
 
 import com.marcot.projectparkapi.web.dto.CustomerCreateDto;
 import com.marcot.projectparkapi.web.dto.CustomerResponseDto;
+import com.marcot.projectparkapi.web.dto.PageableDto;
 import com.marcot.projectparkapi.web.exception.ErrorMessage;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ public class CustomerIT {
     WebTestClient testClient;
 
     @Test
-    public void createCustomer_WithValidData_ReturnsCreatedCustomerWithStatus201() {
+    public void createCustomer_WithValidData_ReturnCreatedCustomerWithStatus201() {
         // Given
         CustomerCreateDto createDto = new CustomerCreateDto("Alice Jones", "96015136049");
 
@@ -43,7 +44,7 @@ public class CustomerIT {
     }
 
     @Test
-    public void createCustomer_WithExistingCpf_ReturnsStatus409() {
+    public void createCustomer_WithExistingCpf_ReturnStatus409() {
         // Given
         CustomerCreateDto createDto = new CustomerCreateDto("Alice Jones", "25125389072");
 
@@ -66,7 +67,7 @@ public class CustomerIT {
     }
 
     @Test
-    public void createCustomer_WithInvalidData_ReturnsStatus422() {
+    public void createCustomer_WithInvalidData_ReturnStatus422() {
         // Given
         CustomerCreateDto emptyNameDto = new CustomerCreateDto("", "96015136049");
         CustomerCreateDto emptyCpfDto = new CustomerCreateDto("Alice Jones", "");
@@ -98,7 +99,7 @@ public class CustomerIT {
     }
 
     @Test
-    public void createCustomer_WithUnauthorizedUser_ReturnsStatus403() {
+    public void createCustomer_WithUnauthorizedUser_ReturnStatus403() {
         // Given
         CustomerCreateDto createDto = new CustomerCreateDto("Alice Jones", "96015136049");
 
@@ -114,7 +115,7 @@ public class CustomerIT {
     }
 
     @Test
-    public void findByCustomer_WithExistingIdByAdmin_ReturnsCustomerWithStatus200() {
+    public void findByCustomer_WithExistingIdByAdmin_ReturnCustomerWithStatus200() {
         // Given
         Long existingCustomerId = 10L;
 
@@ -136,7 +137,7 @@ public class CustomerIT {
     }
 
     @Test
-    public void findByCustomer_WithNonExistingIdByAdmin_ReturnsErrorMessageStatus404() {
+    public void findByCustomer_WithNonExistingIdByAdmin_ReturnErrorMessageStatus404() {
         // Given
         Long nonExistingCustomerId = 0L;
 
@@ -152,7 +153,7 @@ public class CustomerIT {
     }
 
     @Test
-    public void findByCustomer_WithIdExistingByAdmin_ReturnsErrorMessageStatus403() {
+    public void findByCustomer_WithIdExistingByAdmin_ReturnErrorMessageStatus403() {
         // Given
         Long existingCustomerId = 1L;
 
@@ -168,31 +169,105 @@ public class CustomerIT {
     }
 
     @Test
-    public void listCustomers_ByAdmin_ReturnsListOfCustomersWithStatus200() {
+    public void findCustomers_WithPaginationByAdmin_ReturnCustomersWithStatus200() {
         // Given
         String adminUsername = "alan@techcorp.com";
         String adminPassword = "123456";
 
         // When
-        CustomerResponseDto[] responseBody = testClient
+        PageableDto responseBody = testClient
                 .get()
                 .uri("/api/v1/customers")
                 .headers(JwtAuthentication.getHeaderAuthorization(testClient, adminUsername, adminPassword))
                 .exchange()
                 .expectStatus().isOk()
-                .expectBodyList(CustomerResponseDto.class)
+                .expectBody(PageableDto.class)
                 .returnResult()
-                .getResponseBody()
-                .toArray(new CustomerResponseDto[0]);
+                .getResponseBody();
 
         // Then
         org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
-        org.assertj.core.api.Assertions.assertThat(responseBody).isNotEmpty();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getContent().size()).isEqualTo(2);
+        org.assertj.core.api.Assertions.assertThat(responseBody.getNumber()).isEqualTo(0);
+        org.assertj.core.api.Assertions.assertThat(responseBody.getTotalPages()).isEqualTo(1);
 
-        for (CustomerResponseDto customerResponseDto : responseBody) {
-            org.assertj.core.api.Assertions.assertThat(customerResponseDto.getId()).isNotNull();
-            org.assertj.core.api.Assertions.assertThat(customerResponseDto.getName()).isNotEmpty();
-            org.assertj.core.api.Assertions.assertThat(customerResponseDto.getCpf()).isNotEmpty();
-        }
+        responseBody = testClient
+                .get()
+                .uri("/api/v1/customers?size=1&page=1")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, adminUsername, adminPassword))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(PageableDto.class)
+                .returnResult()
+                .getResponseBody();
+
+        // Then
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getContent().size()).isEqualTo(1);
+        org.assertj.core.api.Assertions.assertThat(responseBody.getNumber()).isEqualTo(1);
+        org.assertj.core.api.Assertions.assertThat(responseBody.getTotalPages()).isEqualTo(2);
+
     }
+
+    @Test
+    public void findCustomers_WithPaginationByNotCustomer_ReturnStatus403() {
+        // Given
+        String customerUsername = "alice.jones@nextgen.com";
+        String customerPassword = "123456";
+
+        // When
+        ErrorMessage responseBody = testClient
+                .get()
+                .uri("/api/v1/customers")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, customerUsername, customerPassword))
+                .exchange()
+                .expectStatus().isForbidden()
+                .expectBody(ErrorMessage.class)
+                .returnResult()
+                .getResponseBody();
+    }
+
+    @Test
+    public void fetchClient_WithCustomerTokenData_ReturnCustomerWithStatus200() {
+        // Given
+        String customerUsername = "jane.smith@cyberdynetech.com";
+        String customerPassword = "123456";
+
+        // When
+        CustomerResponseDto responseBody = testClient
+                .get()
+                .uri("/api/v1/customers/details")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, customerUsername, customerPassword))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(CustomerResponseDto.class)
+                .returnResult().getResponseBody();
+
+        org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(responseBody.getCpf()).isEqualTo("56296581076");
+        org.assertj.core.api.Assertions.assertThat(responseBody.getName()).isEqualTo("Jane Smith");
+        org.assertj.core.api.Assertions.assertThat(responseBody.getId()).isEqualTo(10);
+    }
+
+    @Test
+    public void fetchCustomer_WithAdminTokenData_ReturnErrorMessageWithStatus403() {
+        // Given
+        String customerUsername = "alan@techcorp.com";
+        String customerPassword = "123456";
+
+        // When
+        ErrorMessage responseBody = testClient
+                .get()
+                .uri("/api/v1/customers/details")
+                .headers(JwtAuthentication.getHeaderAuthorization(testClient, customerUsername, customerPassword))
+                .exchange()
+                .expectStatus().isForbidden()
+                .expectBody(ErrorMessage.class)
+                .returnResult()
+                .getResponseBody();
+
+    }
+
+
+
 }

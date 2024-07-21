@@ -11,4 +11,6 @@ public interface CustomerEntityRepository extends JpaRepository<CustomerEntity,L
 
     @Query("SELECT c FROM CustomerEntity c")
     Page<CustomerProjection> findAllPageable(Pageable pageable);
+
+    CustomerEntity findByUserEntityId(Long id);
 }

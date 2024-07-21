@@ -13,6 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,7 +55,16 @@ public class CustomerService {
 
     @Transactional(readOnly = true)
     public Page<CustomerProjection> getAllCustomers(Pageable pageable) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+            throw new AccessDeniedException("Access Denied");
+        }
         return customerRepository.findAllPageable(pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public CustomerEntity findByUserId(Long id) {
+            return customerRepository.findByUserEntityId(id);
     }
 
 }

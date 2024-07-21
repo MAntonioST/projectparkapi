@@ -54,13 +54,8 @@ public class SpringSecurityConfig {
                             }
                             return new AuthorizationDecision(!hasRole(authen, "ADMIN"));
                         })
-                        .requestMatchers(HttpMethod.POST, "api/v1/customers").access((authentication, context) -> {
-                            Authentication authen = authentication.get();
-                            if (authen == null || !authen.isAuthenticated()) {
-                                return new AuthorizationDecision(false);
-                            }
-                            return new AuthorizationDecision(!hasRole(authen, "ADMIN"));
-                        })
+                        .requestMatchers(HttpMethod.POST, "api/v1/customers").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "api/v1/customers").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "api/v1/auth").permitAll()
                         .requestMatchers(DOCUMENTATION_OPENAPI).permitAll()
                         .requestMatchers(HttpMethod.GET, "api/v1/users").hasRole("ADMIN")
