@@ -1,8 +1,8 @@
 package com.marcot.projectparkapi.config;
 
-import com.marcot.projectparkapi.entity.UserEntity;
+import com.marcot.projectparkapi.entity.UserAccount;
 import com.marcot.projectparkapi.jwt.JwtAuthorizationFilter;
-import com.marcot.projectparkapi.repository.UserEntityRepository;
+import com.marcot.projectparkapi.repository.UserAccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -30,7 +30,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 public class SpringSecurityConfig {
 
     @Autowired
-    private UserEntityRepository userEntityRepository;
+    private UserAccountRepository userEntityRepository;
 
     private static final String[] DOCUMENTATION_OPENAPI = {
             "/docs/index.html",
@@ -93,7 +93,7 @@ public class SpringSecurityConfig {
 
     private boolean hasUserId(Authentication authentication, Long userId) {
         if (authentication != null && authentication.isAuthenticated()) {
-            UserEntity user = userEntityRepository.findByUsername(authentication.getName()).orElse(null);
+            UserAccount user = userEntityRepository.findByUsername(authentication.getName()).orElse(null);
             return user != null && user.getId().equals(userId);
         }
         return false;

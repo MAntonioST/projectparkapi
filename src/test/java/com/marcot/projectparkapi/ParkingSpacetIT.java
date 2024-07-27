@@ -1,7 +1,7 @@
 package com.marcot.projectparkapi;
 
 
-import com.marcot.projectparkapi.web.dto.ParkingSpotCreateDto;
+import com.marcot.projectparkapi.web.dto.ParkingSpaceCreateDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,7 +13,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Sql(scripts = "/sql/parking-spot/parking_spot-insert.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @Sql(scripts = "/sql/parking-spot/parking_spot-delete.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-public class ParkingSpotIT {
+public class ParkingSpacetIT {
 
     @Autowired
     WebTestClient testClient;
@@ -25,7 +25,7 @@ public class ParkingSpotIT {
                 .uri("/api/v1/parking-spots")
                 .contentType(MediaType.APPLICATION_JSON)
                 .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alan@techcorp.com", "123456"))
-                .bodyValue(new ParkingSpotCreateDto("A-05", "FREE"))
+                .bodyValue(new ParkingSpaceCreateDto("A-05", "FREE"))
                 .exchange()
                 .expectStatus().isCreated()
                 .expectHeader().exists(HttpHeaders.LOCATION);
@@ -38,7 +38,7 @@ public class ParkingSpotIT {
                 .uri("/api/v1/parking-spots")
                 .contentType(MediaType.APPLICATION_JSON)
                 .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alan@techcorp.com", "123456"))
-                .bodyValue(new ParkingSpotCreateDto("A-01", "FREE"))
+                .bodyValue(new ParkingSpaceCreateDto("A-01", "FREE"))
                 .exchange()
                 .expectStatus().isEqualTo(409)
                 .expectBody()
@@ -54,7 +54,7 @@ public class ParkingSpotIT {
                 .uri("/api/v1/parking-spots")
                 .contentType(MediaType.APPLICATION_JSON)
                 .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alan@techcorp.com", "123456"))
-                .bodyValue(new ParkingSpotCreateDto("", ""))
+                .bodyValue(new ParkingSpaceCreateDto("", ""))
                 .exchange()
                 .expectStatus().isEqualTo(422)
                 .expectBody()
@@ -67,7 +67,7 @@ public class ParkingSpotIT {
                 .uri("/api/v1/parking-spots")
                 .contentType(MediaType.APPLICATION_JSON)
                 .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alan@techcorp.com", "123456"))
-                .bodyValue(new ParkingSpotCreateDto("A-501", "FREE"))
+                .bodyValue(new ParkingSpaceCreateDto("A-501", "FREE"))
                 .exchange()
                 .expectStatus().isEqualTo(422)
                 .expectBody()
@@ -123,7 +123,7 @@ public class ParkingSpotIT {
                 .uri("/api/v1/parking-spots")
                 .contentType(MediaType.APPLICATION_JSON)
                 .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alice.jones@nextgen.com", "123456"))
-                .bodyValue(new ParkingSpotCreateDto("A-05", "OCCUPIED"))
+                .bodyValue(new ParkingSpaceCreateDto("A-05", "OCCUPIED"))
                 .exchange()
                 .expectStatus().isForbidden()
                 .expectBody();

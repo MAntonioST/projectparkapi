@@ -1,13 +1,13 @@
 package com.marcot.projectparkapi.web.controller;
 
-import com.marcot.projectparkapi.entity.CustomerEntity;
+import com.marcot.projectparkapi.entity.Customer;
 import com.marcot.projectparkapi.jwt.JwtUserDetails;
 import com.marcot.projectparkapi.repository.projection.CustomerProjection;
 import com.marcot.projectparkapi.service.CustomerService;
 import com.marcot.projectparkapi.web.dto.CustomerCreateDto;
 import com.marcot.projectparkapi.web.dto.CustomerResponseDto;
 import com.marcot.projectparkapi.web.dto.PageableDto;
-import com.marcot.projectparkapi.web.dto.UserResponseDto;
+import com.marcot.projectparkapi.web.dto.UserAccountResponseDto;
 import com.marcot.projectparkapi.web.dto.mapper.CustomerMapper;
 import com.marcot.projectparkapi.web.dto.mapper.PageableMapper;
 import com.marcot.projectparkapi.web.exception.ErrorMessage;
@@ -43,7 +43,7 @@ public class CustomerController {
             security = @SecurityRequirement(name = "security"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Customer successfully created",content = @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = UserResponseDto.class))),
+                    schema = @Schema(implementation = UserAccountResponseDto.class))),
             @ApiResponse(responseCode = "409", description = "Conflict - Customer CPF already exists",content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ErrorMessage.class))),
             @ApiResponse(responseCode = "422", description = "Unprocessable Entity - Validation errors",content = @Content(mediaType = "application/json",
@@ -53,7 +53,7 @@ public class CustomerController {
     })
     @PostMapping
     public ResponseEntity<CustomerResponseDto> createCustomer(@RequestBody @Valid CustomerCreateDto dto) {
-        CustomerEntity entity = customerService.createCustomer(dto);
+        Customer entity = customerService.createCustomer(dto);
         return ResponseEntity.status(201).body(CustomerMapper.toDto(entity));
     }
 
@@ -70,7 +70,7 @@ public class CustomerController {
             })
     @GetMapping("/{id}")
     public ResponseEntity<CustomerResponseDto> getById(@PathVariable Long id) {
-        CustomerEntity customerEntity = customerService.findById(id);
+        Customer customerEntity = customerService.findById(id);
         return ResponseEntity.ok(CustomerMapper.toDto(customerEntity));
     }
 
@@ -122,7 +122,7 @@ public class CustomerController {
             })
     @GetMapping("/details")
     public ResponseEntity<CustomerResponseDto> getDetails(@AuthenticationPrincipal JwtUserDetails userDetails) {
-        CustomerEntity customer = customerService.findByUserId(userDetails.getId());
+        Customer customer = customerService.findByUserId(userDetails.getId());
         return ResponseEntity.ok(CustomerMapper.toDto(customer));
     }
 }

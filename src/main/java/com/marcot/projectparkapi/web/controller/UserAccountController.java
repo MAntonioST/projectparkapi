@@ -1,12 +1,12 @@
 package com.marcot.projectparkapi.web.controller;
 
 
-import com.marcot.projectparkapi.entity.UserEntity;
-import com.marcot.projectparkapi.service.UserService;
-import com.marcot.projectparkapi.web.dto.UserCreateDto;
-import com.marcot.projectparkapi.web.dto.UserPasswordDto;
-import com.marcot.projectparkapi.web.dto.UserResponseDto;
-import com.marcot.projectparkapi.web.dto.mapper.UserMapper;
+import com.marcot.projectparkapi.entity.UserAccount;
+import com.marcot.projectparkapi.service.UserAccountService;
+import com.marcot.projectparkapi.web.dto.UserAccountCreateDto;
+import com.marcot.projectparkapi.web.dto.UserAccountPasswordDto;
+import com.marcot.projectparkapi.web.dto.UserAccountResponseDto;
+import com.marcot.projectparkapi.web.dto.mapper.UserAccountMapper;
 import com.marcot.projectparkapi.web.exception.ErrorMessage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -29,14 +29,14 @@ import java.util.List;
 @RestController
 @RequestMapping("api/v1/users")
 @Tag(name = "User", description = "Endpoints for user management")
-public class UserController {
+public class UserAccountController {
 
-    private final UserService userService;
+    private final UserAccountService userService;
 
     @Operation(summary = "Create a new user", description = "Creates a new user with the provided data")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "User successfully created",content = @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = UserResponseDto.class))),
+                    schema = @Schema(implementation = UserAccountResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "Invalid data provided", content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ErrorMessage.class))),
             @ApiResponse(responseCode = "409", description = "Conflict - User already exists",content = @Content(mediaType = "application/json",
@@ -45,25 +45,25 @@ public class UserController {
                     schema = @Schema(implementation = ErrorMessage.class)))
     })
     @PostMapping
-    public ResponseEntity<UserResponseDto> create(@Valid @RequestBody UserCreateDto createDto) {
-        UserEntity user = userService.save(UserMapper.toUser(createDto));
-        return ResponseEntity.status(HttpStatus.CREATED).body(UserMapper.toDto(user));
+    public ResponseEntity<UserAccountResponseDto> create(@Valid @RequestBody UserAccountCreateDto createDto) {
+        UserAccount user = userService.save(UserAccountMapper.toUser(createDto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(UserAccountMapper.toDto(user));
     }
 
     @Operation(summary = "Get user by ID", description = "Request requires a Bearer Token. Access restricted to ADMIN",
             security = @SecurityRequirement(name = "security"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User found", content = @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = UserResponseDto.class))),
+                    schema = @Schema(implementation = UserAccountResponseDto.class))),
             @ApiResponse(responseCode = "404", description = "User not found", content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ErrorMessage.class))),
             @ApiResponse(responseCode = "403", description = "Usuário sem permissão para acessar este recurso", content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ErrorMessage.class)))
     })
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponseDto> getById(@PathVariable Long id) {
-        UserEntity user = userService.getById(id);
-        return ResponseEntity.ok(UserMapper.toDto(user));
+    public ResponseEntity<UserAccountResponseDto> getById(@PathVariable Long id) {
+        UserAccount user = userService.getById(id);
+        return ResponseEntity.ok(UserAccountMapper.toDto(user));
     }
 
     @Operation(summary = "Update user password", description = "Request requires a Bearer Token. Access restricted to ADMIN",
@@ -78,8 +78,8 @@ public class UserController {
                             schema = @Schema(implementation = ErrorMessage.class)))
     })
     @PatchMapping("/{id}")
-    public ResponseEntity<Void> updatePassword(@PathVariable Long id, @Valid @RequestBody UserPasswordDto dto) {
-        UserEntity user = userService.updatePassword(id, dto.getCurrentPassword(), dto.getNewPassword(), dto.getConfirmPassword());
+    public ResponseEntity<Void> updatePassword(@PathVariable Long id, @Valid @RequestBody UserAccountPasswordDto dto) {
+        UserAccount user = userService.updatePassword(id, dto.getCurrentPassword(), dto.getNewPassword(), dto.getConfirmPassword());
         return ResponseEntity.noContent().build();
     }
 
@@ -88,16 +88,16 @@ public class UserController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "Lista com todos os usuários cadastrados",
                             content = @Content(mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = UserResponseDto.class)))),
+                                    array = @ArraySchema(schema = @Schema(implementation = UserAccountResponseDto.class)))),
                     @ApiResponse(responseCode = "403", description = "Usuário sem permissão para acessar este recurso",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class))),
                     @ApiResponse(responseCode = "403", description = "Usuário sem permissão para acessar este recurso",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
             })
     @GetMapping
-    public ResponseEntity<List<UserResponseDto>> getAllUsers() {
-        List<UserEntity> users = userService.findAllUsers();
-        return ResponseEntity.ok(UserMapper.toListDto(users));
+    public ResponseEntity<List<UserAccountResponseDto>> getAllUsers() {
+        List<UserAccount> users = userService.findAllUsers();
+        return ResponseEntity.ok(UserAccountMapper.toListDto(users));
     }
 
 }

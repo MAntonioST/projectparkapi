@@ -1,8 +1,8 @@
 package com.marcot.projectparkapi;
 
-import com.marcot.projectparkapi.web.dto.UserCreateDto;
-import com.marcot.projectparkapi.web.dto.UserPasswordDto;
-import com.marcot.projectparkapi.web.dto.UserResponseDto;
+import com.marcot.projectparkapi.web.dto.UserAccountCreateDto;
+import com.marcot.projectparkapi.web.dto.UserAccountPasswordDto;
+import com.marcot.projectparkapi.web.dto.UserAccountResponseDto;
 import com.marcot.projectparkapi.web.exception.ErrorMessage;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,21 +16,21 @@ import java.util.List;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Sql(scripts = "/sql/users/users-insert.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @Sql(scripts = "/sql/users/users-delete.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-public class UserIT {
+public class UserAccountIT {
 
     @Autowired
     WebTestClient testClient;
 
     @Test
     public void createUser_WithValidUsernameAndPassword_ReturnsCreatedUserWithStatus201() {
-        UserResponseDto responseBody = testClient
+        UserAccountResponseDto responseBody = testClient
                 .post()
                 .uri("/api/v1/users")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new UserCreateDto("tody@email.com", "123456"))
+                .bodyValue(new UserAccountCreateDto("tody@email.com", "123456"))
                 .exchange()
                 .expectStatus().isCreated()
-                .expectBody(UserResponseDto.class)
+                .expectBody(UserAccountResponseDto.class)
                 .returnResult().getResponseBody();
 
         org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
@@ -45,7 +45,7 @@ public class UserIT {
                 .post()
                 .uri("/api/v1/users")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new UserCreateDto("", "123456"))
+                .bodyValue(new UserAccountCreateDto("", "123456"))
                 .exchange()
                 .expectStatus().isEqualTo(422)
                 .expectBody(ErrorMessage.class)
@@ -58,7 +58,7 @@ public class UserIT {
                 .post()
                 .uri("/api/v1/users")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new UserCreateDto("tody@", "123456"))
+                .bodyValue(new UserAccountCreateDto("tody@", "123456"))
                 .exchange()
                 .expectStatus().isEqualTo(422)
                 .expectBody(ErrorMessage.class)
@@ -71,7 +71,7 @@ public class UserIT {
                 .post()
                 .uri("/api/v1/users")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new UserCreateDto("tody@email", "123456"))
+                .bodyValue(new UserAccountCreateDto("tody@email", "123456"))
                 .exchange()
                 .expectStatus().isEqualTo(422)
                 .expectBody(ErrorMessage.class)
@@ -87,7 +87,7 @@ public class UserIT {
                 .post()
                 .uri("/api/v1/users")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new UserCreateDto("tody@email.com", ""))
+                .bodyValue(new UserAccountCreateDto("tody@email.com", ""))
                 .exchange()
                 .expectStatus().isEqualTo(422)
                 .expectBody(ErrorMessage.class)
@@ -100,7 +100,7 @@ public class UserIT {
                 .post()
                 .uri("/api/v1/users")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new UserCreateDto("tody@email.com", "123"))
+                .bodyValue(new UserAccountCreateDto("tody@email.com", "123"))
                 .exchange()
                 .expectStatus().isEqualTo(422)
                 .expectBody(ErrorMessage.class)
@@ -113,7 +113,7 @@ public class UserIT {
                 .post()
                 .uri("/api/v1/users")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new UserCreateDto("tody@email.com", "123456789"))
+                .bodyValue(new UserAccountCreateDto("tody@email.com", "123456789"))
                 .exchange()
                 .expectStatus().isEqualTo(422)
                 .expectBody(ErrorMessage.class)
@@ -129,7 +129,7 @@ public class UserIT {
                 .post()
                 .uri("/api/v1/users")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new UserCreateDto("john.doe@innovatech.com", "123456"))
+                .bodyValue(new UserAccountCreateDto("john.doe@innovatech.com", "123456"))
                 .exchange()
                 .expectStatus().isEqualTo(409)
                 .expectBody(ErrorMessage.class)
@@ -141,13 +141,13 @@ public class UserIT {
 
     @Test
     public void findUser_WithExistingId_ReturnsUserWithStatus200() {
-        UserResponseDto responseBody = testClient
+        UserAccountResponseDto responseBody = testClient
                 .get()
                 .uri("/api/v1/users/100")
                 .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alan@techcorp.com", "123456"))
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(UserResponseDto.class)
+                .expectBody(UserAccountResponseDto.class)
                 .returnResult().getResponseBody();
 
         org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
@@ -161,7 +161,7 @@ public class UserIT {
                 .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alan@techcorp.com", "123456"))
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(UserResponseDto.class)
+                .expectBody(UserAccountResponseDto.class)
                 .returnResult().getResponseBody();
 
         org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
@@ -175,7 +175,7 @@ public class UserIT {
                 .headers(JwtAuthentication.getHeaderAuthorization(testClient, "john.doe@innovatech.com", "123456"))
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(UserResponseDto.class)
+                .expectBody(UserAccountResponseDto.class)
                 .returnResult().getResponseBody();
 
         org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();
@@ -217,7 +217,7 @@ public class UserIT {
                 .uri("/api/v1/users/100")
                 .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alan@techcorp.com", "123456"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new UserPasswordDto("123456", "123456", "123456"))
+                .bodyValue(new UserAccountPasswordDto("123456", "123456", "123456"))
                 .exchange()
                 .expectStatus().isNoContent();
 
@@ -226,7 +226,7 @@ public class UserIT {
                 .uri("/api/v1/users/101")
                 .headers(JwtAuthentication.getHeaderAuthorization(testClient, "john.doe@innovatech.com", "123456"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new UserPasswordDto("123456", "123456", "123456"))
+                .bodyValue(new UserAccountPasswordDto("123456", "123456", "123456"))
                 .exchange()
                 .expectStatus().isNoContent();
     }
@@ -238,7 +238,7 @@ public class UserIT {
                 .uri("/api/v1/users/103")
                 .headers(JwtAuthentication.getHeaderAuthorization(testClient, "john.doe@innovatech.com", "123456"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new UserPasswordDto("123456", "123456", "123456"))
+                .bodyValue(new UserAccountPasswordDto("123456", "123456", "123456"))
                 .exchange()
                 .expectStatus().isForbidden()
                 .expectBody(ErrorMessage.class)
@@ -252,7 +252,7 @@ public class UserIT {
                 .uri("/api/v1/users/100")
                 .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alan@techcorp.com", "123456"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new UserPasswordDto("", "", ""))
+                .bodyValue(new UserAccountPasswordDto("", "", ""))
                 .exchange()
                 .expectStatus().isEqualTo(422)
                 .expectBody(ErrorMessage.class)
@@ -266,7 +266,7 @@ public class UserIT {
                 .uri("/api/v1/users/100")
                 .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alan@techcorp.com", "123456"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new UserPasswordDto("12345", "12345", "12345"))
+                .bodyValue(new UserAccountPasswordDto("12345", "12345", "12345"))
                 .exchange()
                 .expectStatus().isEqualTo(422)
                 .expectBody(ErrorMessage.class)
@@ -280,7 +280,7 @@ public class UserIT {
                 .uri("/api/v1/users/100")
                 .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alan@techcorp.com", "123456"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new UserPasswordDto("12345678", "12345678", "12345678"))
+                .bodyValue(new UserAccountPasswordDto("12345678", "12345678", "12345678"))
                 .exchange()
                 .expectStatus().isEqualTo(422)
                 .expectBody(ErrorMessage.class)
@@ -297,7 +297,7 @@ public class UserIT {
                 .uri("/api/v1/users/100")
                 .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alan@techcorp.com", "123456"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new UserPasswordDto("123456", "123456", "000000"))
+                .bodyValue(new UserAccountPasswordDto("123456", "123456", "000000"))
                 .exchange()
                 .expectStatus().isEqualTo(400)
                 .expectBody(ErrorMessage.class)
@@ -311,7 +311,7 @@ public class UserIT {
                 .uri("/api/v1/users/100")
                 .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alan@techcorp.com", "123456"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new UserPasswordDto("000000", "123456", "123456"))
+                .bodyValue(new UserAccountPasswordDto("000000", "123456", "123456"))
                 .exchange()
                 .expectStatus().isEqualTo(400)
                 .expectBody(ErrorMessage.class)
@@ -323,13 +323,13 @@ public class UserIT {
 
     @Test
     public void listUsers_WithUserWithPermission_ReturnsListOfUsersWithStatus200() {
-        List<UserResponseDto> responseBody = testClient
+        List<UserAccountResponseDto> responseBody = testClient
                 .get()
                 .uri("/api/v1/users")
                 .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alan@techcorp.com", "123456"))
                 .exchange()
                 .expectStatus().isOk()
-                .expectBodyList(UserResponseDto.class)
+                .expectBodyList(UserAccountResponseDto.class)
                 .returnResult().getResponseBody();
 
         org.assertj.core.api.Assertions.assertThat(responseBody).isNotNull();

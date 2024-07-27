@@ -1,10 +1,7 @@
 package com.marcot.projectparkapi.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -17,32 +14,27 @@ import java.util.Objects;
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
 @Entity
-@Table(name = "users")
+@Table(name = "parking_spots")
 @EntityListeners(AuditingEntityListener.class)
-public class UserEntity implements Serializable {
-
+public class ParkingSpace implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
 
-    @Column(name = "username", nullable = false,unique = true, length = 100)
-    private String username;
+    @Column(name = "code", nullable = false, unique = true, length = 4)
+    private String code;
 
-    @Column(name = "password", nullable = false, length = 200)
-    private String password;
-
+    @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false, length = 25)
-    private Role role = Role.ROLE_CLIENTE;
+    private ParkingSpaceStatus status;
 
     @CreatedDate
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    @Column(name = "creation_date")
+    private LocalDateTime creationDate;
 
     @LastModifiedDate
-    @Column(name = "modified_at")
-    private LocalDateTime modifiedAt;
+    @Column(name = "modification_date")
+    private LocalDateTime modificationDate;
 
     @CreatedBy
     @Column(name = "created_by")
@@ -52,27 +44,20 @@ public class UserEntity implements Serializable {
     @Column(name = "modified_by")
     private String modifiedBy;
 
-    public enum Role {
-        ROLE_ADMIN, ROLE_CLIENTE
+    public enum ParkingSpaceStatus {
+        FREE, OCCUPIED
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        UserEntity userEntity = (UserEntity) o;
-        return Objects.equals(id, userEntity.id);
+        ParkingSpace that = (ParkingSpace) o;
+        return Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                '}';
+        return Objects.hash(id);
     }
 }

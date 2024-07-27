@@ -18,7 +18,7 @@ import java.util.Objects;
 @Entity
 @Table(name = "customers")
 @EntityListeners(AuditingEntityListener.class)
-public class CustomerEntity {
+public class Customer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,7 +32,7 @@ public class CustomerEntity {
 
     @OneToOne
     @JoinColumn(name = "id_user", nullable = false)
-    private UserEntity userEntity;
+    private UserAccount userAccount;
 
     @CreatedDate
     @Column(name = "created_at")
@@ -54,7 +54,7 @@ public class CustomerEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        CustomerEntity that = (CustomerEntity) o;
+        Customer that = (Customer) o;
         return Objects.equals(id, that.id);
     }
 

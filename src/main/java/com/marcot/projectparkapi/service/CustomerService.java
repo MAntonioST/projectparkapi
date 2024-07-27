@@ -1,11 +1,11 @@
 package com.marcot.projectparkapi.service;
 
 
-import com.marcot.projectparkapi.entity.CustomerEntity;
+import com.marcot.projectparkapi.entity.Customer;
 import com.marcot.projectparkapi.exception.CpfUniqueViolationException;
 import com.marcot.projectparkapi.exception.EntityNotFoundException;
 import com.marcot.projectparkapi.jwt.JwtUserDetails;
-import com.marcot.projectparkapi.repository.CustomerEntityRepository;
+import com.marcot.projectparkapi.repository.CustomerRepository;
 import com.marcot.projectparkapi.repository.projection.CustomerProjection;
 import com.marcot.projectparkapi.web.dto.CustomerCreateDto;
 import com.marcot.projectparkapi.web.dto.mapper.CustomerMapper;
@@ -20,22 +20,20 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class CustomerService {
 
-    private final CustomerEntityRepository customerRepository;
-    private final UserService userService;
+    private final CustomerRepository customerRepository;
+    private final UserAccountService userService;
 
 
     @Transactional
-    public CustomerEntity createCustomer(CustomerCreateDto dto) {
-        CustomerEntity customer = CustomerMapper.toCustomer(dto);
+    public Customer createCustomer(CustomerCreateDto dto) {
+        Customer customer = CustomerMapper.toCustomer(dto);
         // Get the authenticated user details
         JwtUserDetails userDetails = (JwtUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        customer.setUserEntity(userService.getById(userDetails.getId()));
+        customer.setUserAccount(userService.getById(userDetails.getId()));
         try {
             return customerRepository.save(customer);
         } catch ( DataIntegrityViolationException ex) {
@@ -47,7 +45,7 @@ public class CustomerService {
     }
 
     @Transactional(readOnly = true)
-    public CustomerEntity findById(Long id) {
+    public Customer findById(Long id) {
         return customerRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Customer id=%s not found in system", id))
         );
@@ -63,8 +61,15 @@ public class CustomerService {
     }
 
     @Transactional(readOnly = true)
-    public CustomerEntity findByUserId(Long id) {
-            return customerRepository.findByUserEntityId(id);
+    public Customer findByUserId(Long id) {
+            return customerRepository.findByUserAccountId(id);
+    }
+
+    @Transactional(readOnly = true)
+    public Customer findByCpf(String cpf) {
+        return customerRepository.findByCpf(cpf).orElseThrow(
+                () -> new EntityNotFoundException(String.format("Customer with CPF '%s' not found", cpf))
+        );
     }
 
 }

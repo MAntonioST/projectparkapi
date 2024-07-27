@@ -2,8 +2,8 @@ package com.marcot.projectparkapi.web.controller;
 
 import com.marcot.projectparkapi.jwt.JwtToken;
 import com.marcot.projectparkapi.jwt.JwtUserDetailsService;
-import com.marcot.projectparkapi.web.dto.UserLoginDto;
-import com.marcot.projectparkapi.web.dto.UserResponseDto;
+import com.marcot.projectparkapi.web.dto.UserAccountLoginDto;
+import com.marcot.projectparkapi.web.dto.UserAccountResponseDto;
 import com.marcot.projectparkapi.web.exception.ErrorMessage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -46,14 +46,14 @@ public class AuthenticatorController {
     @Operation(summary = "Authenticate a user", description = "Authenticates a user with the provided credentials")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully authenticated and return Bearer token",content = @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = UserResponseDto.class))),
+                    schema = @Schema(implementation = UserAccountResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "Invalid credentials",content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ErrorMessage.class))),
             @ApiResponse(responseCode = "422", description = "Unprocessable Entity - Validation errors",content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ErrorMessage.class)))
     })
     @PostMapping("/auth")
-    public ResponseEntity<?> authenticateUser(@RequestBody @Valid UserLoginDto dto, HttpServletRequest request) {
+    public ResponseEntity<?> authenticateUser(@RequestBody @Valid UserAccountLoginDto dto, HttpServletRequest request) {
 
         log.info("Processo de autenticação pelo login {}",dto.getUsername());
 

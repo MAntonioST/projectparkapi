@@ -2,7 +2,7 @@ package com.marcot.projectparkapi;
 
 
 import com.marcot.projectparkapi.jwt.JwtToken;
-import com.marcot.projectparkapi.web.dto.UserLoginDto;
+import com.marcot.projectparkapi.web.dto.UserAccountLoginDto;
 import com.marcot.projectparkapi.web.exception.ErrorMessage;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ public class AuthenticationIT {
     @Test
     public void authenticate_withValidCredentials_returnsTokenWithStatus200(){
 
-        UserLoginDto validUserLoginDto = new UserLoginDto("alan@techcorp.com", "123456");
+        UserAccountLoginDto validUserLoginDto = new UserAccountLoginDto("alan@techcorp.com", "123456");
 
         JwtToken responseBody = testClient
                 .post()
@@ -47,7 +47,7 @@ public class AuthenticationIT {
                 .post()
                 .uri("/api/v1/auth")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new UserLoginDto("alan@techcorp.com", "000000"))
+                .bodyValue(new UserAccountLoginDto("alan@techcorp.com", "000000"))
                 .exchange()
                 .expectStatus().isBadRequest()
                 .expectBody(ErrorMessage.class)
@@ -64,7 +64,7 @@ public class AuthenticationIT {
                 .post()
                 .uri("/api/v1/auth")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new UserLoginDto("invalid@email.com", "123456"))
+                .bodyValue(new UserAccountLoginDto("invalid@email.com", "123456"))
                 .exchange()
                 .expectStatus().isBadRequest()
                 .expectBody(ErrorMessage.class)
@@ -78,8 +78,8 @@ public class AuthenticationIT {
     @Test
     public void authenticate_withInvalidPassword_returnsErrorWithStatus422() {
         // Arrange
-        UserLoginDto invalidUserLoginDto1 = new UserLoginDto("alan@techcorp.com", "1234"); // Empty username
-        UserLoginDto invalidUserLoginDto2 = new UserLoginDto("alan@techcorp.com", ""); // Empty password
+        UserAccountLoginDto invalidUserLoginDto1 = new UserAccountLoginDto("alan@techcorp.com", "1234"); // Empty username
+        UserAccountLoginDto invalidUserLoginDto2 = new UserAccountLoginDto("alan@techcorp.com", ""); // Empty password
 
         // Act & Assert for empty username
         testClient
@@ -113,8 +113,8 @@ public class AuthenticationIT {
     @Test
     public void authenticate_withInvalidUsername_returnsErrorWithStatus422() {
         // Arrange
-        UserLoginDto invalidUserLoginDto1 = new UserLoginDto("", "123456"); // Empty username
-        UserLoginDto invalidUserLoginDto2 = new UserLoginDto("@techcorp.com", "123456"); // Empty password
+        UserAccountLoginDto invalidUserLoginDto1 = new UserAccountLoginDto("", "123456"); // Empty username
+        UserAccountLoginDto invalidUserLoginDto2 = new UserAccountLoginDto("@techcorp.com", "123456"); // Empty password
 
         // Act & Assert for empty username
         testClient

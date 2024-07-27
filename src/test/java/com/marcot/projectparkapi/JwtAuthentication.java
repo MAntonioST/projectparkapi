@@ -2,7 +2,7 @@ package com.marcot.projectparkapi;
 
 
 import com.marcot.projectparkapi.jwt.JwtToken;
-import com.marcot.projectparkapi.web.dto.UserLoginDto;
+import com.marcot.projectparkapi.web.dto.UserAccountLoginDto;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -14,7 +14,7 @@ public class JwtAuthentication {
         String token = client
                 .post()
                 .uri("/api/v1/auth")
-                .bodyValue(new UserLoginDto(username, password))
+                .bodyValue(new UserAccountLoginDto(username, password))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(JwtToken.class)

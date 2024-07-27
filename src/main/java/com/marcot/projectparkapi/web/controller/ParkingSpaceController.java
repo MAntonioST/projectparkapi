@@ -1,11 +1,11 @@
 package com.marcot.projectparkapi.web.controller;
 
 
-import com.marcot.projectparkapi.entity.ParkingSpotEntity;
-import com.marcot.projectparkapi.service.ParkingSpotService;
-import com.marcot.projectparkapi.web.dto.ParkingSpotCreateDto;
-import com.marcot.projectparkapi.web.dto.ParkingSpotResponseDto;
-import com.marcot.projectparkapi.web.dto.mapper.ParkingSpotMapper;
+import com.marcot.projectparkapi.entity.ParkingSpace;
+import com.marcot.projectparkapi.service.ParkingSpaceService;
+import com.marcot.projectparkapi.web.dto.ParkingSpaceCreateDto;
+import com.marcot.projectparkapi.web.dto.ParkingSpaceResponseDto;
+import com.marcot.projectparkapi.web.dto.mapper.ParkingSpaceMapper;
 import com.marcot.projectparkapi.web.exception.ErrorMessage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.headers.Header;
@@ -27,9 +27,9 @@ import java.net.URI;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("api/v1/parking-spots")
-public class ParkingSpotController {
+public class ParkingSpaceController {
 
-    private final ParkingSpotService parkingSpotService;
+    private final ParkingSpaceService parkingSpotService;
 
     @Operation(summary = "Create a new parking spot", description = "Resource to create a new parking spot." +
             "Request requires the use of a bearer token. Access restricted to Role='ADMIN'",
@@ -49,8 +49,8 @@ public class ParkingSpotController {
                     )
             })
     @PostMapping
-    public ResponseEntity<Void> create(@RequestBody @Valid ParkingSpotCreateDto dto) {
-        ParkingSpotEntity parkingSpot = ParkingSpotMapper.toParkingSpot(dto);
+    public ResponseEntity<Void> create(@RequestBody @Valid ParkingSpaceCreateDto dto) {
+        ParkingSpace parkingSpot = ParkingSpaceMapper.toParkingSpot(dto);
         parkingSpotService.save(parkingSpot);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequestUri().path("/{code}")
@@ -65,7 +65,7 @@ public class ParkingSpotController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "Resource successfully retrieved",
                             content = @Content(mediaType = "application/json;charset=UTF-8",
-                                    schema = @Schema(implementation = ParkingSpotResponseDto.class))),
+                                    schema = @Schema(implementation = ParkingSpaceResponseDto.class))),
                     @ApiResponse(responseCode = "404", description = "Parking spot not found",
                             content = @Content(mediaType = "application/json;charset=UTF-8",
                                     schema = @Schema(implementation = ErrorMessage.class))),
@@ -75,8 +75,8 @@ public class ParkingSpotController {
                     )
             })
     @GetMapping("/{code}")
-    public ResponseEntity<ParkingSpotResponseDto> getByCode(@PathVariable String code) {
-        ParkingSpotEntity parkingSpot = parkingSpotService.findByCode(code);
-        return ResponseEntity.ok(ParkingSpotMapper.toDto(parkingSpot));
+    public ResponseEntity<ParkingSpaceResponseDto> getByCode(@PathVariable String code) {
+        ParkingSpace parkingSpot = parkingSpotService.findByCode(code);
+        return ResponseEntity.ok(ParkingSpaceMapper.toDto(parkingSpot));
     }
 }

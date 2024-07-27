@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class UserPasswordDto {
+public class UserAccountPasswordDto {
 
     @NotBlank
     @Size(min = 6, max = 6,message = "The current password must be exactly 6 characters long")
