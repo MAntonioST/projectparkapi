@@ -26,10 +26,10 @@ import java.net.URI;
 @Tag(name = "Parking Spots", description = "Contains all operations related to the parking spot resource")
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("api/v1/parking-spots")
+@RequestMapping("api/v1/parking-spaces")
 public class ParkingSpaceController {
 
-    private final ParkingSpaceService parkingSpotService;
+    private final ParkingSpaceService parkingSpaceService;
 
     @Operation(summary = "Create a new parking spot", description = "Resource to create a new parking spot." +
             "Request requires the use of a bearer token. Access restricted to Role='ADMIN'",
@@ -51,7 +51,7 @@ public class ParkingSpaceController {
     @PostMapping
     public ResponseEntity<Void> create(@RequestBody @Valid ParkingSpaceCreateDto dto) {
         ParkingSpace parkingSpot = ParkingSpaceMapper.toParkingSpot(dto);
-        parkingSpotService.save(parkingSpot);
+        parkingSpaceService.save(parkingSpot);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequestUri().path("/{code}")
                 .buildAndExpand(parkingSpot.getCode())
@@ -76,7 +76,7 @@ public class ParkingSpaceController {
             })
     @GetMapping("/{code}")
     public ResponseEntity<ParkingSpaceResponseDto> getByCode(@PathVariable String code) {
-        ParkingSpace parkingSpot = parkingSpotService.findByCode(code);
+        ParkingSpace parkingSpot = parkingSpaceService.findByCode(code);
         return ResponseEntity.ok(ParkingSpaceMapper.toDto(parkingSpot));
     }
 }

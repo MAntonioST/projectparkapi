@@ -19,8 +19,8 @@ public class CustomerParkingSpaceService {
     private final CustomerParkingSpaceRepository repository;
 
     @Transactional
-    public CustomerParkingSpace save(CustomerParkingSpace customerParkingSpot) {
-        return repository.save(customerParkingSpot);
+    public CustomerParkingSpace save(CustomerParkingSpace customerParkingSpace) {
+        return repository.save(customerParkingSpace);
     }
 
     @Transactional(readOnly = true)

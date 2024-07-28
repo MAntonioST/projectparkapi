@@ -29,7 +29,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -94,7 +93,6 @@ public class ParkingController {
                                     schema = @Schema(implementation = ErrorMessage.class)))
             })
     @GetMapping("/check-in/{receipt}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
     public ResponseEntity<ParkingResponseDto> getByReceipt(@PathVariable String receipt) {
         CustomerParkingSpace customerParkingSpot = customerParkingSpaceService.findByReceiptNumber(receipt);
         ParkingResponseDto dto = CustomerParkingSpaceMapper.toDto(customerParkingSpot);
@@ -120,7 +118,6 @@ public class ParkingController {
                                     schema = @Schema(implementation = ErrorMessage.class)))
             })
     @PutMapping("/check-out/{receipt}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ParkingResponseDto> checkout(@PathVariable String receipt) {
         CustomerParkingSpace customerParkingSpace = parkingService.checkOut(receipt);
         ParkingResponseDto dto = CustomerParkingSpaceMapper.toDto(customerParkingSpace);
@@ -154,7 +151,6 @@ public class ParkingController {
                                     schema = @Schema(implementation = ErrorMessage.class)))
             })
     @GetMapping("/cpf/{cpf}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PageableDto> getAllParkingRecordsByCpf(@PathVariable String cpf, @Parameter(hidden = true)
     @PageableDefault(size = 5, sort = "entryDate",
             direction = Sort.Direction.ASC) Pageable pageable) {
@@ -189,7 +185,6 @@ public class ParkingController {
                                     schema = @Schema(implementation = ErrorMessage.class)))
             })
     @GetMapping
-    @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<PageableDto> getAllParkingRecordsForLoggedInCustomer(@AuthenticationPrincipal JwtUserDetails user,
                                                                                @Parameter(hidden = true) @PageableDefault(
                                                                                        size = 5, sort = "entryDate",

@@ -21,19 +21,19 @@ public class ParkingService {
     private final ParkingSpaceService parkingSpaceService;
 
     @Transactional
-    public CustomerParkingSpace checkIn(CustomerParkingSpace customerParkingSpot) {
-        Customer customer = customerService.findByCpf(customerParkingSpot.getCustomer().getCpf());
-        customerParkingSpot.setCustomer(customer);
+    public CustomerParkingSpace checkIn(CustomerParkingSpace customerParkingSpace) {
+        Customer customer = customerService.findByCpf(customerParkingSpace.getCustomer().getCpf());
+        customerParkingSpace.setCustomer(customer);
 
         ParkingSpace parkingSpace = parkingSpaceService.findFirstAvailableSpace();
         parkingSpace.setStatus(ParkingSpace.ParkingSpaceStatus.OCCUPIED);
-        customerParkingSpot.setParkingSpot(parkingSpace);
+        customerParkingSpace.setParkingSpace(parkingSpace);
 
-        customerParkingSpot.setEntryTime(LocalDateTime.now());
+        customerParkingSpace.setEntryTime(LocalDateTime.now());
 
-        customerParkingSpot.setReceiptNumber(ParkingUtils.generateReceipt());
+        customerParkingSpace.setReceiptNumber(ParkingUtils.generateReceipt());
 
-        return customerParkingSpaceService.save(customerParkingSpot);
+        return customerParkingSpaceService.save(customerParkingSpace);
     }
 
     @Transactional
@@ -51,7 +51,7 @@ public class ParkingService {
         customerParkingSpot.setDiscount(discount);
 
         customerParkingSpot.setExitTime(exitTime);
-        customerParkingSpot.getParkingSpot().setStatus(ParkingSpace.ParkingSpaceStatus.FREE);
+        customerParkingSpot.getParkingSpace().setStatus(ParkingSpace.ParkingSpaceStatus.FREE);
 
         return customerParkingSpaceService.save(customerParkingSpot);
     }

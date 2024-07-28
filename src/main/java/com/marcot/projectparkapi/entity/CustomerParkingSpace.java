@@ -20,7 +20,7 @@ import java.util.Objects;
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
 @Entity
-@Table(name = "customer_parking_spots")
+@Table(name = "customer_parking_space")
 @EntityListeners(AuditingEntityListener.class)
 public class CustomerParkingSpace {
 
@@ -60,8 +60,8 @@ public class CustomerParkingSpace {
     private Customer customer;
 
     @ManyToOne
-    @JoinColumn(name = "parking_spot_id", nullable = false)
-    private ParkingSpace parkingSpot;
+    @JoinColumn(name = "parking_space_id", nullable = false)
+    private ParkingSpace parkingSpace;
 
     @CreatedDate
     @Column(name = "created_at")

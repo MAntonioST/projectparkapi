@@ -14,7 +14,7 @@ import java.util.Objects;
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
 @Entity
-@Table(name = "parking_spots")
+@Table(name = "parking_spaces")
 @EntityListeners(AuditingEntityListener.class)
 public class ParkingSpace implements Serializable {
     @Id
