@@ -11,8 +11,8 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Sql(scripts = "/sql/parking-space/parking_space-insert.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-@Sql(scripts = "/sql/parking-space/parking_space-delete.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+@Sql(scripts = "/sql/parking-space/parking-space-insert.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(scripts = "/sql/parking-space/parking-space-delete.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 public class ParkingSpacetIT {
 
     @Autowired
@@ -22,7 +22,7 @@ public class ParkingSpacetIT {
     public void createSlot_WithValidData_ShouldReturnLocationStatus201() {
         testClient
                 .post()
-                .uri("/api/v1/parking-spots")
+                .uri("/api/v1/parking-spaces")
                 .contentType(MediaType.APPLICATION_JSON)
                 .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alan@techcorp.com", "123456"))
                 .bodyValue(new ParkingSpaceCreateDto("A-05", "FREE"))
@@ -35,7 +35,7 @@ public class ParkingSpacetIT {
     public void createSlot_WithExistingCode_ShouldReturnErrorMessageWithStatus409() {
         testClient
                 .post()
-                .uri("/api/v1/parking-spots")
+                .uri("/api/v1/parking-spaces")
                 .contentType(MediaType.APPLICATION_JSON)
                 .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alan@techcorp.com", "123456"))
                 .bodyValue(new ParkingSpaceCreateDto("A-01", "FREE"))
@@ -44,14 +44,14 @@ public class ParkingSpacetIT {
                 .expectBody()
                 .jsonPath("status").isEqualTo(409)
                 .jsonPath("method").isEqualTo("POST")
-                .jsonPath("path").isEqualTo("/api/v1/parking-spots");
+                .jsonPath("path").isEqualTo("/api/v1/parking-spaces");
     }
 
     @Test
     public void createSlot_WithInvalidData_ShouldReturnErrorMessageWithStatus422() {
         testClient
                 .post()
-                .uri("/api/v1/parking-spots")
+                .uri("/api/v1/parking-spaces")
                 .contentType(MediaType.APPLICATION_JSON)
                 .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alan@techcorp.com", "123456"))
                 .bodyValue(new ParkingSpaceCreateDto("", ""))
@@ -60,11 +60,11 @@ public class ParkingSpacetIT {
                 .expectBody()
                 .jsonPath("status").isEqualTo(422)
                 .jsonPath("method").isEqualTo("POST")
-                .jsonPath("path").isEqualTo("/api/v1/parking-spots");
+                .jsonPath("path").isEqualTo("/api/v1/parking-spaces");
 
         testClient
                 .post()
-                .uri("/api/v1/parking-spots")
+                .uri("/api/v1/parking-spaces")
                 .contentType(MediaType.APPLICATION_JSON)
                 .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alan@techcorp.com", "123456"))
                 .bodyValue(new ParkingSpaceCreateDto("A-501", "FREE"))
@@ -73,14 +73,14 @@ public class ParkingSpacetIT {
                 .expectBody()
                 .jsonPath("status").isEqualTo(422)
                 .jsonPath("method").isEqualTo("POST")
-                .jsonPath("path").isEqualTo("/api/v1/parking-spots");
+                .jsonPath("path").isEqualTo("/api/v1/parking-spaces");
     }
 
     @Test
     public void getSlot_WithExistingCode_ShouldReturnSlotWithStatus200() {
         testClient
                 .get()
-                .uri("/api/v1/parking-spots/{code}", "A-01")
+                .uri("/api/v1/parking-spaces/{code}", "A-01")
                 .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alan@techcorp.com", "123456"))
                 .exchange()
                 .expectStatus().isOk()
@@ -94,21 +94,21 @@ public class ParkingSpacetIT {
     public void getSlot_WithNonExistingCode_ShouldReturnErrorMessageWithStatus404() {
         testClient
                 .get()
-                .uri("/api/v1/parking-spots/{code}", "A-10")
+                .uri("/api/v1/parking-spaces/{code}", "A-10")
                 .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alan@techcorp.com", "123456"))
                 .exchange()
                 .expectStatus().isNotFound()
                 .expectBody()
                 .jsonPath("status").isEqualTo(404)
                 .jsonPath("method").isEqualTo("GET")
-                .jsonPath("path").isEqualTo("/api/v1/parking-spots/A-10");
+                .jsonPath("path").isEqualTo("/api/v1/parking-spaces/A-10");
     }
 
     @Test
     public void getSlot_WithUserWithoutAccessPermission_ShouldReturnErrorMessageWithStatus403() {
         testClient
                 .get()
-                .uri("/api/v1/parking-spots/{code}", "A-01")
+                .uri("/api/v1/parking-spaces/{code}", "A-01")
                 .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alice.jones@nextgen.com", "123456"))
                 .exchange()
                 .expectStatus().isForbidden()
@@ -120,7 +120,7 @@ public class ParkingSpacetIT {
     public void createSlot_WithUserWithoutAccessPermission_ShouldReturnErrorMessageWithStatus403() {
         testClient
                 .post()
-                .uri("/api/v1/parking-spots")
+                .uri("/api/v1/parking-spaces")
                 .contentType(MediaType.APPLICATION_JSON)
                 .headers(JwtAuthentication.getHeaderAuthorization(testClient, "alice.jones@nextgen.com", "123456"))
                 .bodyValue(new ParkingSpaceCreateDto("A-05", "OCCUPIED"))

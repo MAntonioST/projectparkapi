@@ -54,7 +54,10 @@ public class SpringSecurityConfig {
                             }
                             return new AuthorizationDecision(!hasRole(authen, "ADMIN"));
                         })
-                        .requestMatchers(HttpMethod.POST, "api/v1/customers").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "api/v1/customers").access((authentication, context) -> {
+                            Authentication authen = authentication.get();
+                            return new AuthorizationDecision(!hasRole(authen, "ADMIN"));
+                        })
                         .requestMatchers(HttpMethod.GET, "api/v1/customers").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "api/v1/parking-spaces").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "api/v1/parking-spaces").hasRole("ADMIN")
@@ -62,9 +65,10 @@ public class SpringSecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "api/v1/parking-spaces/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "api/v1/parking-spaces/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "api/v1/parking/check-in").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "api/v1/parking/check-in/**").hasAnyRole("ADMIN", "CLIENT")
+                        .requestMatchers(HttpMethod.GET, "api/v1/parking/check-in/**").hasAnyRole("ADMIN", "CLIENTE")
                         .requestMatchers(HttpMethod.PUT, "api/v1/parking/check-out/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "api/v1/parking/check-in/cpf/").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "api/v1/customers/details").hasAnyRole("ADMIN", "CLIENTE")
                         .requestMatchers(HttpMethod.POST, "api/v1/auth").permitAll()
                         .requestMatchers(DOCUMENTATION_OPENAPI).permitAll()
                         .requestMatchers(HttpMethod.GET, "api/v1/users").hasRole("ADMIN")
@@ -74,6 +78,10 @@ public class SpringSecurityConfig {
                         .access(createAuthorizationManager("ADMIN", true))
                         .requestMatchers(HttpMethod.DELETE, "api/v1/users/{id}")
                         .access(createAuthorizationManager("ADMIN", true))
+                        .requestMatchers(HttpMethod.GET, "api/v1/customers/{id}")
+                        .access(createAuthorizationManager("ADMIN", false))
+                        .requestMatchers(HttpMethod.GET, "api/v1/customers/{id}")
+                        .access(createAuthorizationManager("CLIENTE", false))
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

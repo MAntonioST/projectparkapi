@@ -153,9 +153,9 @@ public class CustomerIT {
     }
 
     @Test
-    public void findByCustomer_WithIdExistingByAdmin_ReturnErrorMessageStatus403() {
+    public void findByCustomer_WithIdExistingByCustomer_ReturnErrorMessageStatus403() {
         // Given
-        Long existingCustomerId = 1L;
+        Long existingCustomerId = 10L;
 
         // When & Then
         testClient
@@ -228,7 +228,7 @@ public class CustomerIT {
     }
 
     @Test
-    public void fetchClient_WithCustomerTokenData_ReturnCustomerWithStatus200() {
+    public void fetchCustomer_WithCustomerTokenData_ReturnCustomerWithStatus200() {
         // Given
         String customerUsername = "jane.smith@cyberdynetech.com";
         String customerPassword = "123456";
